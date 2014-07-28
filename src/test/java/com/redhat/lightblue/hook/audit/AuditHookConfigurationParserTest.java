@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.metadata.DataStore;
 import com.redhat.lightblue.metadata.EntityInfo;
+import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.parser.DataStoreParser;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.HookConfigurationParser;
@@ -95,8 +96,9 @@ public class AuditHookConfigurationParserTest {
 
         try {
             EntityInfo entityInfo = parser.parseEntityInfo(node);
+            Assert.fail("Expected Error to be thrown");
         } catch (Error e) {
-            Assert.assertEquals(AuditHookConfigurationParser.ERR_MISSING_PROPERTY, e.getErrorCode());
+            Assert.assertEquals(MetadataConstants.ERR_PARSE_MISSING_ELEMENT, e.getErrorCode());
             Assert.assertEquals(AuditHookConfigurationParser.PROPERTY_VERSION, e.getMsg());
         }
     }
@@ -111,8 +113,9 @@ public class AuditHookConfigurationParserTest {
 
         try {
             EntityInfo entityInfo = parser.parseEntityInfo(node);
+            Assert.fail("Expected Error to be thrown");
         } catch (Error e) {
-            Assert.assertEquals(AuditHookConfigurationParser.ERR_MISSING_PROPERTY, e.getErrorCode());
+            Assert.assertEquals(MetadataConstants.ERR_PARSE_MISSING_ELEMENT, e.getErrorCode());
             Assert.assertEquals(AuditHookConfigurationParser.PROPERTY_ENTITY_NAME, e.getMsg());
         }
     }
