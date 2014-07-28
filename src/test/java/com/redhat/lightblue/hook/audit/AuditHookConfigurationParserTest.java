@@ -10,6 +10,7 @@ import com.redhat.lightblue.metadata.parser.HookConfigurationParser;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.parser.MetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
+import com.redhat.lightblue.util.Error;
 import static com.redhat.lightblue.util.JsonUtils.json;
 import com.redhat.lightblue.util.test.FileUtil;
 import java.io.IOException;
@@ -82,5 +83,53 @@ public class AuditHookConfigurationParserTest {
         Assert.assertEquals("audit", ((AuditHookConfiguration) entityInfo.getHooks().getHooks().get(0).getConfiguration()).getEntityName());
         Assert.assertEquals("1.0.0", ((AuditHookConfiguration) entityInfo.getHooks().getHooks().get(0).getConfiguration()).getVersion());
 
+    }
+
+    @Test
+    public void testMissingVersion() throws IOException, URISyntaxException {
+        String jsonString = FileUtil.readFile(getClass().getSimpleName() + "-missing-version.json");
+
+        Assert.assertNotNull(jsonString);
+
+        JsonNode node = json(jsonString);
+
+        try {
+            EntityInfo entityInfo = parser.parseEntityInfo(node);
+        } catch (Error e) {
+            Assert.assertEquals(AuditHookConfigurationParser.ERR_MISSING_PROPERTY, e.getErrorCode());
+            Assert.assertEquals(AuditHookConfigurationParser.PROPERTY_VERSION, e.getMsg());
+        }
+    }
+
+    @Test
+    public void testMissingEntityName() throws IOException, URISyntaxException {
+        String jsonString = FileUtil.readFile(getClass().getSimpleName() + "-missing-entityName.json");
+
+        Assert.assertNotNull(jsonString);
+
+        JsonNode node = json(jsonString);
+
+        try {
+            EntityInfo entityInfo = parser.parseEntityInfo(node);
+        } catch (Error e) {
+            Assert.assertEquals(AuditHookConfigurationParser.ERR_MISSING_PROPERTY, e.getErrorCode());
+            Assert.assertEquals(AuditHookConfigurationParser.PROPERTY_ENTITY_NAME, e.getMsg());
+        }
+    }
+
+    @Test
+    public void testMissingConfiguration() throws IOException, URISyntaxException {
+        String jsonString = FileUtil.readFile(getClass().getSimpleName() + "-missing-configuration.json");
+
+        Assert.assertNotNull(jsonString);
+
+        JsonNode node = json(jsonString);
+
+        EntityInfo entityInfo = parser.parseEntityInfo(node);
+
+        // simply won't have configuration on the hook
+        Assert.assertFalse(entityInfo.getHooks().isEmpty());
+        Assert.assertEquals(HOOK_NAME, entityInfo.getHooks().getHooks().get(0).getName());
+        Assert.assertNull(entityInfo.getHooks().getHooks().get(0).getConfiguration());
     }
 }

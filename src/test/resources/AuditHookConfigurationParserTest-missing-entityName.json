@@ -1,3 +1,14 @@
 {
-    "name": "nmalik"
+    "name": "test",
+    "hooks": [
+        {
+            "name": "auditHook",
+            "configuration": {
+                "version": "1.0.0"
+            }
+        }
+    ],
+    "datastore": {
+        "backend": "test"
+    }
 }

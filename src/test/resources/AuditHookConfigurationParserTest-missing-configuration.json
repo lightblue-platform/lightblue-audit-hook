@@ -2,10 +2,7 @@
     "name": "test",
     "hooks": [
         {
-            "name": "auditHook",
-            "configuration": {
-                "entityName": "audit"
-            }
+            "name": "auditHook"
         }
     ],
     "datastore": {
