@@ -12,10 +12,10 @@ import com.redhat.lightblue.util.Error;
  * @author nmalik
  */
 public class AuditHookConfigurationParser implements HookConfigurationParser<JsonNode> {
-    private static final String PROPERTY_ENTITY_NAME = "entityName";
-    private static final String PROPERTY_VERSION = "version";
+    public static final String PROPERTY_ENTITY_NAME = "entityName";
+    public static final String PROPERTY_VERSION = "version";
 
-    private static final String ERR_MISSING_PROPERTY = "hook:MissingProperty";
+    public static final String ERR_MISSING_PROPERTY = "hook:MissingProperty";
 
     @Override
     public HookConfiguration parse(String name, MetadataParser<JsonNode> p, JsonNode node) {

@@ -1,32 +1,15 @@
 {
-    "entityInfo": {
-        "name": "test",
-        "hooks": [
-            {
-                "name": "AUDIT_HOOK",
-                "configuration": {
-                    "entityName": "audit",
-                    "version": "1.0.0"
-                }
-            }
-        ],
-        "datastore": {
-            "backend": "empty"
-        }
-    },
-    "schema": {
-        "name": "test",
-        "version": {
-            "value": "1.0.0",
-            "changelog": "Initial version"
-        },
-        "status": {
-            "value": "active"
-        },
-        "fields": {
-            "field1": {
-                "type": "string"
+    "name": "test",
+    "hooks": [
+        {
+            "name": "auditHook",
+            "configuration": {
+                "entityName": "audit",
+                "version": "1.0.0"
             }
         }
+    ],
+    "datastore": {
+        "backend": "test"
     }
 }
