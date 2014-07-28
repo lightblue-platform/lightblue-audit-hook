@@ -14,6 +14,13 @@ public class AuditHookConfigurationParser implements HookConfigurationParser<Jso
     public static final String PROPERTY_ENTITY_NAME = "entityName";
     public static final String PROPERTY_VERSION = "version";
 
+    public static final String HOOK_NAME = "auditHook";
+    
+    @Override
+    public String getName() {
+        return HOOK_NAME;
+    }
+    
     @Override
     public HookConfiguration parse(String name, MetadataParser<JsonNode> p, JsonNode node) {
         // note: name is the hook name (comes from generic Parser interface)

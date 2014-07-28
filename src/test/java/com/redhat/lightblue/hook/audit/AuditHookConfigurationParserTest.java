@@ -28,9 +28,6 @@ public class AuditHookConfigurationParserTest {
 
     protected JSONMetadataParser parser;
 
-    // must be same as what is in JSON
-    protected static final String HOOK_NAME = "auditHook";
-
     public static class TestDataStoreParser implements DataStoreParser<JsonNode> {
         @Override
         public DataStore parse(String name, MetadataParser<JsonNode> p, JsonNode node) {
@@ -56,7 +53,7 @@ public class AuditHookConfigurationParserTest {
     public void setUp() {
         Extensions<JsonNode> ex = new Extensions<>();
         HookConfigurationParser hookParser = new AuditHookConfigurationParser();
-        ex.registerHookConfigurationParser(HOOK_NAME, hookParser);
+        ex.registerHookConfigurationParser(AuditHookConfigurationParser.HOOK_NAME, hookParser);
         ex.registerDataStoreParser("test", new TestDataStoreParser());
         parser = new JSONMetadataParser(ex, new DefaultTypes(), nodeFactory);
     }
@@ -78,7 +75,7 @@ public class AuditHookConfigurationParserTest {
 
         Assert.assertNotNull(entityInfo);
         Assert.assertFalse(entityInfo.getHooks().isEmpty());
-        Assert.assertEquals(HOOK_NAME, entityInfo.getHooks().getHooks().get(0).getName());
+        Assert.assertEquals(AuditHookConfigurationParser.HOOK_NAME, entityInfo.getHooks().getHooks().get(0).getName());
 
         // verify configuration
         Assert.assertEquals("audit", ((AuditHookConfiguration) entityInfo.getHooks().getHooks().get(0).getConfiguration()).getEntityName());
@@ -132,7 +129,7 @@ public class AuditHookConfigurationParserTest {
 
         // simply won't have configuration on the hook
         Assert.assertFalse(entityInfo.getHooks().isEmpty());
-        Assert.assertEquals(HOOK_NAME, entityInfo.getHooks().getHooks().get(0).getName());
+        Assert.assertEquals(AuditHookConfigurationParser.HOOK_NAME, entityInfo.getHooks().getHooks().get(0).getName());
         Assert.assertNull(entityInfo.getHooks().getHooks().get(0).getConfiguration());
     }
 }
