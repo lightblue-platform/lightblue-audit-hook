@@ -9,6 +9,6 @@
         }
     ],
     "datastore": {
-        "backend": "test"
+        "backend": "mongo"
     }
 }

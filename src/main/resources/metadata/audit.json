@@ -1,0 +1,57 @@
+{
+    "entityInfo": {
+        "name": "audit",
+        "datastore": {
+            "backend": "mongo",
+            "datasource": "mongo",
+            "collection": "audit"
+        }
+    },
+    "schema": {
+        "name": "audit",
+        "version": {
+            "value": "0.1.0-SNAPSHOT",
+            "changelog": "Initial version"
+        },
+        "status": {
+            "value": "active"
+        },
+        "access": {
+            "insert": ["anyone"],
+            "find": ["anyone"],
+            "update": ["anyone"],
+            "delete": ["anyone"]
+        },
+        "fields": {
+            "_id": {
+                "type": "string",
+                "description": "Delimited field with format: <entityName>|<entity _id>"
+            },
+            "audits": {
+                "type": "array",
+                "description": "All data changes for this entity instance",
+                "items": {
+                    "type": "object",
+                    "fields": {
+                        "field": {
+                            "type": "string",
+                            "description": "Path audited."
+                        },
+                        "value": {
+                            "type": "string",
+                            "description": "Value at the path."
+                        },
+                        "when": {
+                            "type": "date",
+                            "description": "When the value was changed."
+                        },
+                        "who": {
+                            "type": "string",
+                            "description": "Who changed the field [OPTIONAL]"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

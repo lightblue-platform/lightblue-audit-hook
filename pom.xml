@@ -26,6 +26,21 @@
                 <version>0.1-SNAPSHOT</version>
             </dependency>
             <dependency>
+                <groupId>com.redhat.lightblue.config</groupId>
+                <artifactId>core-config</artifactId>
+                <version>0.1-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.redhat.lightblue.mongo</groupId>
+                <artifactId>mongo-config</artifactId>
+                <version>0.1-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.redhat.lightblue.mongo</groupId>
+                <artifactId>mongo-metadata</artifactId>
+                <version>0.1-SNAPSHOT</version>
+            </dependency>
+            <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
                 <version>2.2.3</version>
@@ -100,17 +115,26 @@
     </dependencyManagement>
     <dependencies>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>com.redhat.lightblue</groupId>
             <artifactId>metadata</artifactId>
         </dependency>
         <dependency>
             <groupId>com.redhat.lightblue</groupId>
             <artifactId>crud</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.redhat.lightblue.config</groupId>
+            <artifactId>core-config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.redhat.lightblue.mongo</groupId>
+            <artifactId>mongo-config</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <properties>
