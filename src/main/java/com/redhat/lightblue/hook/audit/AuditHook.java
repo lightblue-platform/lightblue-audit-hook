@@ -118,7 +118,7 @@ public class AuditHook implements CRUDHook {
                     // NOTE: for simplicity I'm going to leave the trailing pipe (|) to simplify this
 
                     // see metadata/audit.json for structure
-                    StringBuilder buff = new StringBuilder(String.format("{\"_id\" : \"%s|%s\",\"audits\":[", hd.getEntityName(), identityString.toString()));
+                    StringBuilder buff = new StringBuilder(String.format("{\"_id\" : \"%s|%s\",\"audits\":[", hd.getEntityMetadata().getName(), identityString.toString()));
 
                     // audit those that did change
                     for (Entry<Path, AuditData> e : audits.entrySet()) {

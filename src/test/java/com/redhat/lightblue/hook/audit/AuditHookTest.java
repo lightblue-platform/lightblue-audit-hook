@@ -26,7 +26,13 @@ import org.junit.Test;
  * @author nmalik
  */
 public class AuditHookTest extends AbstractHookTest {
+    protected static final String AUDIT_METADATA_FILENAME = "metadata/audit.json";
 
+    /**
+     * Verify the audit metadata conforms to metadata schema.
+     *
+     * @throws Exception
+     */
     @Test
     public void verifyMetadataJson() throws Exception {
         String jsonSchemaString = FileUtil.readFile(AUDIT_METADATA_FILENAME);
@@ -41,6 +47,11 @@ public class AuditHookTest extends AbstractHookTest {
         Assert.assertTrue("Expected validation to succeed!\nResource: " + AUDIT_METADATA_FILENAME + "\nMessages:\n" + report, report == null);
     }
 
+    /**
+     * Verify audit metadata can be parsed into EntityMetadata object.
+     *
+     * @throws Exception
+     */
     @Test
     public void verifyEntityMetadata() throws Exception {
         // load
@@ -53,6 +64,9 @@ public class AuditHookTest extends AbstractHookTest {
         Assert.assertNotNull(em);
     }
 
+    /**
+     * Verify name returned by audit hook.
+     */
     @Test
     public void getName() throws Exception {
         AuditHook hook = new AuditHook();
@@ -60,6 +74,11 @@ public class AuditHookTest extends AbstractHookTest {
         Assert.assertEquals(AuditHook.HOOK_NAME, hook.getName());
     }
 
+    /**
+     * Very simple (and hacky) test of document processing.
+     *
+     * @throws Exception
+     */
     @Test
     public void updateWithId() throws Exception {
         // load
@@ -90,7 +109,7 @@ public class AuditHookTest extends AbstractHookTest {
         pre.put("bar", "same");
         post.put("bar", "same");
 
-        HookDoc hd = new HookDoc("test", em, new JsonDoc(pre), new JsonDoc(post), Operation.UPDATE);
+        HookDoc hd = new HookDoc(em, new JsonDoc(pre), new JsonDoc(post), Operation.UPDATE);
 
         processedDocuments.add(hd);
         // ------------------------------------------------------------
@@ -101,5 +120,4 @@ public class AuditHookTest extends AbstractHookTest {
         // process hook
         hook.processHook(em, config, processedDocuments);
     }
-
 }

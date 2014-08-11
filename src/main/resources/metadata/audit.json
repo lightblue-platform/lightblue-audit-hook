@@ -25,7 +25,10 @@
         "fields": {
             "_id": {
                 "type": "string",
-                "description": "Delimited field with format: <entityName>|<entity _id>"
+                "description": "Delimited field with format: <entityName>|<entity _id>",
+                "constraints": {
+                    "identity": 1
+                }
             },
             "audits": {
                 "type": "array",

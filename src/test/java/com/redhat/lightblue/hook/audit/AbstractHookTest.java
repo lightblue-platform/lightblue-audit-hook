@@ -21,12 +21,11 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 
 /**
- *
+ * 
  * @author nmalik
  */
 public abstract class AbstractHookTest {
 
-    protected static final String AUDIT_METADATA_FILENAME = "metadata/audit.json";
     protected static final String DATASTORE_BACKEND = "mongo";
 
     // reuse the json node factory, no need to create new ones each test
@@ -77,6 +76,7 @@ public abstract class AbstractHookTest {
     @Before
     public void setUp() {
         Extensions<JsonNode> ex = new Extensions<>();
+        ex.addDefaultExtensions();
         hookParser = new AuditHookConfigurationParser();
         ex.registerHookConfigurationParser(AuditHook.HOOK_NAME, hookParser);
         ex.registerDataStoreParser(DATASTORE_BACKEND, new TestDataStoreParser());
