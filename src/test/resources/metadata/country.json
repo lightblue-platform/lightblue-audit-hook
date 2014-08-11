@@ -54,6 +54,9 @@
                 "constraints": {
                     "identity": true
                 }
+            },
+            "optionalField": {
+                "type": "string"
             }
         }
     }

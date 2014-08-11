@@ -1,7 +1,6 @@
 package com.redhat.lightblue.hook.audit;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.redhat.lightblue.config.LightblueFactory;
 import com.redhat.lightblue.crud.Operation;
 import com.redhat.lightblue.hooks.CRUDHook;
 import com.redhat.lightblue.hooks.HookDoc;
@@ -46,7 +45,6 @@ public class AuditHook implements CRUDHook {
         }
         AuditHookConfiguration auditConfig = (AuditHookConfiguration) cfg;
 
-        LightblueFactory factory = LightblueFactory.getInstance();
         try {
             Error.push(auditConfig.getEntityName());
             Error.push(auditConfig.getVersion());
@@ -55,6 +53,7 @@ public class AuditHook implements CRUDHook {
             for (HookDoc hd : processedDocuments) {
                 // find if each field changed
                 JsonNodeCursor preCursor = hd.getPreDoc().cursor();
+                JsonNodeCursor postCursor = hd.getPostDoc().cursor();
 
                 // record to hold changes
                 Map<Path, AuditData> audits = new HashMap<>();
@@ -67,9 +66,10 @@ public class AuditHook implements CRUDHook {
                         // non-container node, check if it changed
                         String preValue = node.asText();
                         // if operation is delete, post value doesn't exist.
-                        String postValue = hd.getOperation() == Operation.DELETE ? null : hd.getPostDoc().get(path).asText();
+                        JsonNode postNode = hd.getPostDoc().get(path);
+                        String postValue = hd.getOperation() == Operation.DELETE || postNode == null ? null : postNode.asText();
 
-                        if ((preValue != null && preValue.equals(postValue))
+                        if ((preValue != null && !preValue.equals(postValue))
                                 || (preValue == null && postValue != null)) {
                             // something changed! audit it..
                             AuditData ad = new AuditData();
@@ -80,6 +80,35 @@ public class AuditHook implements CRUDHook {
                         }
                     }
                     // else continue processing
+                }
+
+                while (postCursor.next()) {
+                    Path path = postCursor.getCurrentPath();
+                    JsonNode node = postCursor.getCurrentNode();
+
+                    // shortcut, don't check if we have an audit for the path already
+                    if (!audits.containsKey(path) && node.isValueNode()) {
+                        // non-container node, check if it changed
+                        JsonNode preNode = hd.getPreDoc().get(path);
+                        String preValue = preNode == null ? null : preNode.asText();
+                        String postValue = node.asText();
+
+                        if ((preValue != null && !preValue.equals(postValue))
+                                || (preValue == null && postValue != null)) {
+                            // something changed! audit it..
+                            AuditData ad = new AuditData();
+                            ad.path = path;
+                            ad.pre = preValue;
+                            ad.post = postValue;
+                            audits.put(path, ad);
+                        }
+                    }
+                    // else continue processing
+                }
+
+                // if there's nothing to audit, stop
+                if (audits.isEmpty()) {
+                    return;
                 }
 
                 List<JsonNode> identifyingNodes = new ArrayList<>();
@@ -133,6 +162,8 @@ public class AuditHook implements CRUDHook {
 
                     // and close it
                     buff.append("]}");
+
+                    // TODO do something with this...
                 }
             }
         } finally {

@@ -188,4 +188,37 @@ public class CountryAuditHookTest extends AbstractHookTest {
         // process hook
         hook.processHook(em, config, processedDocuments);
     }
+
+    /**
+     * Check side effect when there is a difference between pre and post documents.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void differentPreAndPost() throws Exception {
+        String jsonSchemaString = FileUtil.readFile(COUNTRY_METADATA_FILENAME);
+        EntityMetadata em = parser.parseEntityMetadata(json(jsonSchemaString));
+
+        // create hook configuration
+        AuditHookConfiguration config = new AuditHookConfiguration(em.getName(), em.getVersion().getValue());
+
+        // ------------------------------------------------------------
+        // mock up document data
+        List<HookDoc> processedDocuments = new ArrayList<>();
+
+        // need a json node for pre and post data.  will create together to make easier
+        JsonNode pre = json(FileUtil.readFile(getClass().getSimpleName() + "-differentPreAndPost-pre.json"));
+        JsonNode post = json(FileUtil.readFile(getClass().getSimpleName() + "-differentPreAndPost-post.json"));
+
+        HookDoc hd = new HookDoc(em, new JsonDoc(pre), new JsonDoc(post), Operation.UPDATE);
+
+        processedDocuments.add(hd);
+        // ------------------------------------------------------------
+
+        // create hook
+        AuditHook hook = new AuditHook();
+
+        // process hook
+        hook.processHook(em, config, processedDocuments);
+    }
 }
