@@ -15,7 +15,6 @@ import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.JsonUtils;
 import static com.redhat.lightblue.util.JsonUtils.json;
-import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.test.FileUtil;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,32 +45,32 @@ public class AuditHookTest extends AbstractHookTest {
     public void verifyEntityMetadata() throws Exception {
         // load
         String jsonSchemaString = FileUtil.readFile(AUDIT_METADATA_FILENAME);
-        
+
         // parser
         EntityMetadata em = parser.parseEntityMetadata(json(jsonSchemaString));
 
         // verify (simple)
         Assert.assertNotNull(em);
     }
-    
+
     @Test
     public void getName() throws Exception {
         AuditHook hook = new AuditHook();
-        
+
         Assert.assertEquals(AuditHook.HOOK_NAME, hook.getName());
-    }        
-    
+    }
+
     @Test
     public void updateWithId() throws Exception {
         // load
         String jsonSchemaString = FileUtil.readFile(AUDIT_METADATA_FILENAME);
-        
+
         // parser
         EntityMetadata em = parser.parseEntityMetadata(json(jsonSchemaString));
-        
+
         // create hook configuration
         AuditHookConfiguration config = new AuditHookConfiguration("test", "1.0.0");
-        
+
         // ------------------------------------------------------------
         // mock up document data
         List<HookDoc> processedDocuments = new ArrayList<>();
@@ -79,28 +78,28 @@ public class AuditHookTest extends AbstractHookTest {
         // need a json node for pre and post data.  will create together to make easier
         ObjectNode pre = new ObjectNode(JsonNodeFactory.instance);
         ObjectNode post = new ObjectNode(JsonNodeFactory.instance);
-        
+
         // only set _id on post, assumes the update input doesn't have the _id
         post.put("_id", "ID");
-        
+
         // will have a field "foo" on each with different values
         pre.put("foo", "old");
         post.put("foo", "new");
-        
+
         // and field "bar" with same values
         pre.put("bar", "same");
         post.put("bar", "same");
-        
-        HookDoc hd = new HookDoc("test", new Path("_id"), new JsonDoc(pre), new JsonDoc(post), Operation.UPDATE);
-        
+
+        HookDoc hd = new HookDoc("test", em, new JsonDoc(pre), new JsonDoc(post), Operation.UPDATE);
+
         processedDocuments.add(hd);
         // ------------------------------------------------------------
-        
+
         // create hook
         AuditHook hook = new AuditHook();
-        
+
         // process hook
         hook.processHook(em, config, processedDocuments);
-    }        
+    }
 
 }

@@ -6,15 +6,14 @@ import com.redhat.lightblue.crud.Operation;
 import com.redhat.lightblue.hooks.CRUDHook;
 import com.redhat.lightblue.hooks.HookDoc;
 import com.redhat.lightblue.metadata.EntityMetadata;
+import com.redhat.lightblue.metadata.Field;
 import com.redhat.lightblue.metadata.HookConfiguration;
-import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.types.DateType;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonNodeCursor;
 import com.redhat.lightblue.util.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -52,17 +51,8 @@ public class AuditHook implements CRUDHook {
             Error.push(auditConfig.getEntityName());
             Error.push(auditConfig.getVersion());
 
-            // get the metadata
-            EntityMetadata metadata = factory.getMetadata().getEntityMetadata(auditConfig.getEntityName(), auditConfig.getVersion());
-
             // for each processed document
             for (HookDoc hd : processedDocuments) {
-
-                // fail if id path is missing
-                if (hd.getIdentifyingPath() == null) {
-                    throw Error.get(ERR_MISSING_ID, "path:null");
-                }
-
                 // find if each field changed
                 JsonNodeCursor preCursor = hd.getPreDoc().cursor();
 
@@ -92,22 +82,43 @@ public class AuditHook implements CRUDHook {
                     // else continue processing
                 }
 
+                List<JsonNode> identifyingNodes = new ArrayList<>();
+
                 if (!audits.isEmpty()) {
-                    // attempt to get id from pre doc
-                    JsonNode id = hd.getPreDoc().get(hd.getIdentifyingPath());
                     String when = DateType.toString(hd.getWhen());
 
-                    if (id == null && hd.getPostDoc() != null) {
-                        // didn't find id in pre, try to find in post
-                        id = hd.getPostDoc().get(hd.getIdentifyingPath());
+                    // attempt to get set of fields that identify the document from:
+                    //  1) pre doc
+                    //  2) post doc
+                    // if not found, fail.. need identity to audit!
+                    for (Field f : hd.getEntityMetadata().getEntitySchema().getIdentityFields()) {
+                        Path p = f.getFullPath();
+
+                        // pre doc?
+                        JsonNode node = hd.getPreDoc().get(p);
+
+                        if (node == null && hd.getPostDoc() != null) {
+                            // post doc?
+                            node = hd.getPostDoc().get(p);
+                        }
+
+                        if (node == null) {
+                            // unable to find a path for identity, fail
+                            throw Error.get(ERR_MISSING_ID, "path:" + p.toString());
+                        }
+
+                        identifyingNodes.add(node);
                     }
 
-                    if (id == null) {
-                        throw Error.get(ERR_MISSING_ID, "path:" + hd.getIdentifyingPath().toString());
+                    // build key for identity
+                    StringBuilder identityString = new StringBuilder();
+                    for (JsonNode node : identifyingNodes) {
+                        identityString.append(node.asText()).append("|");
                     }
+                    // NOTE: for simplicity I'm going to leave the trailing pipe (|) to simplify this
 
                     // see metadata/audit.json for structure
-                    StringBuilder buff = new StringBuilder(String.format("{\"_id\" : \"%s|%s\",\"audits\":[", hd.getEntityName(), id.asText()));
+                    StringBuilder buff = new StringBuilder(String.format("{\"_id\" : \"%s|%s\",\"audits\":[", hd.getEntityName(), identityString.toString()));
 
                     // audit those that did change
                     for (Entry<Path, AuditData> e : audits.entrySet()) {
@@ -124,9 +135,6 @@ public class AuditHook implements CRUDHook {
                     buff.append("]}");
                 }
             }
-
-        } catch (IOException | ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException ex) {
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
         } finally {
             Error.pop();
             Error.pop();
