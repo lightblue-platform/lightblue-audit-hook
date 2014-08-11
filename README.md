@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/lightblue-platform/lightblue-audit-hook.svg?branch=master)](https://travis-ci.org/lightblue-platform/lightblue-audit-hook)
+
 lightblue-audit-hook
 ====================
 
