@@ -30,5 +30,10 @@ public class AuditHookConfigurationParser implements HookConfigurationParser<Jso
 
     @Override
     public void convert(MetadataParser<JsonNode> p, JsonNode emptyNode, HookConfiguration object) {
+        if (object instanceof AuditHookConfiguration) {
+            AuditHookConfiguration ahc = (AuditHookConfiguration) object;
+            p.putValue(emptyNode, PROPERTY_ENTITY_NAME, ahc.getEntityName());
+            p.putValue(emptyNode, PROPERTY_VERSION, ahc.getVersion());
+        }
     }
 }

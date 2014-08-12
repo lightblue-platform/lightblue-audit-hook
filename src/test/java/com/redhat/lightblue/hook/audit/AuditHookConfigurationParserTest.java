@@ -87,4 +87,32 @@ public class AuditHookConfigurationParserTest extends AbstractHookTest {
         Assert.assertEquals(AuditHook.HOOK_NAME, entityInfo.getHooks().getHooks().get(0).getName());
         Assert.assertNull(entityInfo.getHooks().getHooks().get(0).getConfiguration());
     }
+
+    @Test
+    public void parse() throws IOException {
+        String jsonString = "{\"entityName\": \"audit\",\"version\": \"1.0.0\"}";
+
+        AuditHookConfigurationParser p = new AuditHookConfigurationParser();
+
+        AuditHookConfiguration config = (AuditHookConfiguration) p.parse("audit", parser, json(jsonString));
+
+        Assert.assertEquals("audit", config.getEntityName());
+        Assert.assertEquals("1.0.0", config.getVersion());
+    }
+
+    @Test
+    public void convert() throws IOException {
+        String jsonString = "{\"entityName\": \"audit\",\"version\": \"1.0.0\"}";
+
+        AuditHookConfigurationParser p = new AuditHookConfigurationParser();
+
+        AuditHookConfiguration config = (AuditHookConfiguration) p.parse("audit", parser, json(jsonString));
+
+        JsonNode node = parser.newNode();
+
+        p.convert(parser, node, config);
+
+        Assert.assertEquals("audit", node.get("entityName").asText());
+        Assert.assertEquals("1.0.0", node.get("version").asText());
+    }
 }
