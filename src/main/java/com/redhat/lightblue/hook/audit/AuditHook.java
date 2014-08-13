@@ -27,7 +27,7 @@ public class AuditHook implements CRUDHook {
 
     public static final String ERR_MISSING_ID = "audit-hook:MissingID";
 
-    private static final class AuditData {
+    protected static final class AuditData {
         Path path;
         String pre;
         String post;
@@ -36,6 +36,65 @@ public class AuditHook implements CRUDHook {
     @Override
     public String getName() {
         return HOOK_NAME;
+    }
+
+    protected Map<Path, AuditData> findAuditsFor(EntityMetadata md, HookConfiguration cfg, HookDoc processedDocument) {
+        // find if each field changed
+        JsonNodeCursor preCursor = processedDocument.getPreDoc().cursor();
+        JsonNodeCursor postCursor = processedDocument.getPostDoc().cursor();
+
+        // record to hold changes
+        Map<Path, AuditData> audits = new HashMap<>();
+
+        while (preCursor.next()) {
+            Path path = preCursor.getCurrentPath();
+            JsonNode node = preCursor.getCurrentNode();
+
+            if (node.isValueNode()) {
+                // non-container node, check if it changed
+                String preValue = node.asText();
+                // if operation is delete, post value doesn't exist.
+                JsonNode postNode = processedDocument.getPostDoc().get(path);
+                String postValue = processedDocument.getOperation() == Operation.DELETE || postNode == null ? null : postNode.asText();
+
+                if ((preValue != null && !preValue.equals(postValue))
+                        || (preValue == null && postValue != null)) {
+                    // something changed! audit it..
+                    AuditData ad = new AuditData();
+                    ad.path = path;
+                    ad.pre = preValue;
+                    ad.post = postValue;
+                    audits.put(path, ad);
+                }
+            }
+            // else continue processing
+        }
+
+        while (postCursor.next()) {
+            Path path = postCursor.getCurrentPath();
+            JsonNode node = postCursor.getCurrentNode();
+
+            // shortcut, don't check if we have an audit for the path already
+            if (!audits.containsKey(path) && node.isValueNode()) {
+                // non-container node, check if it changed
+                JsonNode preNode = processedDocument.getPreDoc().get(path);
+                String preValue = preNode == null ? null : preNode.asText();
+                String postValue = node.asText();
+
+                if ((preValue != null && !preValue.equals(postValue))
+                        || (preValue == null && postValue != null)) {
+                    // something changed! audit it..
+                    AuditData ad = new AuditData();
+                    ad.path = path;
+                    ad.pre = preValue;
+                    ad.post = postValue;
+                    audits.put(path, ad);
+                }
+            }
+            // else continue processing
+        }
+
+        return audits;
     }
 
     @Override
@@ -51,60 +110,7 @@ public class AuditHook implements CRUDHook {
 
             // for each processed document
             for (HookDoc hd : processedDocuments) {
-                // find if each field changed
-                JsonNodeCursor preCursor = hd.getPreDoc().cursor();
-                JsonNodeCursor postCursor = hd.getPostDoc().cursor();
-
-                // record to hold changes
-                Map<Path, AuditData> audits = new HashMap<>();
-
-                while (preCursor.next()) {
-                    Path path = preCursor.getCurrentPath();
-                    JsonNode node = preCursor.getCurrentNode();
-
-                    if (node.isValueNode()) {
-                        // non-container node, check if it changed
-                        String preValue = node.asText();
-                        // if operation is delete, post value doesn't exist.
-                        JsonNode postNode = hd.getPostDoc().get(path);
-                        String postValue = hd.getOperation() == Operation.DELETE || postNode == null ? null : postNode.asText();
-
-                        if ((preValue != null && !preValue.equals(postValue))
-                                || (preValue == null && postValue != null)) {
-                            // something changed! audit it..
-                            AuditData ad = new AuditData();
-                            ad.path = path;
-                            ad.pre = preValue;
-                            ad.post = postValue;
-                            audits.put(path, ad);
-                        }
-                    }
-                    // else continue processing
-                }
-
-                while (postCursor.next()) {
-                    Path path = postCursor.getCurrentPath();
-                    JsonNode node = postCursor.getCurrentNode();
-
-                    // shortcut, don't check if we have an audit for the path already
-                    if (!audits.containsKey(path) && node.isValueNode()) {
-                        // non-container node, check if it changed
-                        JsonNode preNode = hd.getPreDoc().get(path);
-                        String preValue = preNode == null ? null : preNode.asText();
-                        String postValue = node.asText();
-
-                        if ((preValue != null && !preValue.equals(postValue))
-                                || (preValue == null && postValue != null)) {
-                            // something changed! audit it..
-                            AuditData ad = new AuditData();
-                            ad.path = path;
-                            ad.pre = preValue;
-                            ad.post = postValue;
-                            audits.put(path, ad);
-                        }
-                    }
-                    // else continue processing
-                }
+                Map<Path, AuditData> audits = findAuditsFor(md, cfg, hd);
 
                 // if there's nothing to audit, stop
                 if (audits.isEmpty()) {
