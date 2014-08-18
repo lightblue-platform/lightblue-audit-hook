@@ -120,7 +120,7 @@ public class AuditHook implements CRUDHook {
                 List<JsonNode> identifyingNodes = new ArrayList<>();
 
                 if (!audits.isEmpty()) {
-                    String when = DateType.toString(hd.getWhen());
+                    String when = DateType.getDateFormat().format(hd.getWhen());
 
                     // attempt to get set of fields that identify the document from:
                     //  1) pre doc
