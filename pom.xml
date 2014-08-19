@@ -13,6 +13,19 @@
     <version>0.1.0-SNAPSHOT</version>
     <name>lightblue audit hook: ${project.groupId}|${project.artifactId}</name>
     <description>Lightblue Audit Hook components</description>
+    <licenses>
+        <license>
+            <name>GNU GENERAL PUBLIC LICENSE, Version 3, 29 June 2007</name>
+            <url>http://www.gnu.org/licenses/gpl-3.0-standalone.html</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <scm>
+        <connection>scm:git:https://github.com/lightblue-platform/lightblue-audit-hook.git</connection>
+        <developerConnection>scm:git:git@github.com:lightblue-platform/lightblue-audit-hook.git</developerConnection>
+        <url>https://github.com/lightblue-platform/lightblue-audit-hook</url>
+      <tag>HEAD</tag>
+    </scm>
     <dependencyManagement>
         <dependencies>
             <dependency>
