@@ -5,7 +5,7 @@ jdk:
 before_install:
 - cp ./settings.xml ~/.m2/
 after_success:
-- '[ ${TRAVIS_PULL_REQUEST} == "false" and ${TRAVIS_BRANCH} == "master" ] && mvn clean deploy -DskipTests || mvn clean verify'
+  - "[[ $TRAVIS_BRANCH == \"master\" ]] && { mvn clean deploy -DskipTests; };"
 - mvn clean test jacoco:report coveralls:jacoco
 notifications:
   email: false
