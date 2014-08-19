@@ -1,19 +1,20 @@
 language: java
 jdk:
-- openjdk7
-- oraclejdk8
+  - openjdk7
+  - oraclejdk8
 before_install:
-- cp ./settings.xml ~/.m2/
+  - cp ./settings.xml ~/.m2/
+  - git clone -b travis `git config --get remote.origin.url` target/travis
 after_success:
-- "[[ $TRAVIS_BRANCH == \"master\" ]] && { mvn clean deploy -DskipTests; };"
-- mvn clean test jacoco:report coveralls:jacoco
+  - "[[ $TRAVIS_BRANCH == \"master\" ]] && { mvn clean deploy -DskipTests -s target/travis/settings.xml; };"
+  - mvn clean test jacoco:report coveralls:jacoco
 notifications:
   email: false
   irc:
     channels:
-    - chat.freenode.net#lightblue
+      - chat.freenode.net#lightblue
     on_success: always
 env:
   global:
-  - secure: BiobCgn6K201T4SjEwr3PqY9dl9Comw8mq3XppO33ahAl995f/sXvorSpMRiKJkuT27MOQGhH6lTYQBy32jbeShQaI3HIyEYyi8KaO6AM+CmaRGN5t2E3Oe0WmzUy1x3aQKj9k8CC4/X3fhHQD1yaANJWZz5qeumcQgYKeb5ojE=
-  - secure: n5fgYW+8pPWzu2Mvhgc/3A3oW63JwxD23rZD8GfW02jvJTQ8tJuNwKfn+o2ONcvugZ+xaZ+Ev4qx3CTBnkAwm45PJBgIElievSB1VbK/uQsQnEiBa6EqgleRRzrMEwaTG0CrHRCk3VmGspGIEC7M48NHqyRBtzn6DhwB1zhbPUg=
+    - secure: BiobCgn6K201T4SjEwr3PqY9dl9Comw8mq3XppO33ahAl995f/sXvorSpMRiKJkuT27MOQGhH6lTYQBy32jbeShQaI3HIyEYyi8KaO6AM+CmaRGN5t2E3Oe0WmzUy1x3aQKj9k8CC4/X3fhHQD1yaANJWZz5qeumcQgYKeb5ojE=
+    - secure: n5fgYW+8pPWzu2Mvhgc/3A3oW63JwxD23rZD8GfW02jvJTQ8tJuNwKfn+o2ONcvugZ+xaZ+Ev4qx3CTBnkAwm45PJBgIElievSB1VbK/uQsQnEiBa6EqgleRRzrMEwaTG0CrHRCk3VmGspGIEC7M48NHqyRBtzn6DhwB1zhbPUg=
