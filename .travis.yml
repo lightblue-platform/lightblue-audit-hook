@@ -4,9 +4,8 @@ jdk:
   - oraclejdk8
 before_install:
   - cp ./settings.xml ~/.m2/
-  - git clone -b travis `git config --get remote.origin.url` target/travis
 after_success:
-  - "[[ $TRAVIS_BRANCH == \"master\" ]] && { mvn clean deploy -DskipTests -s target/travis/settings.xml; };"
+  - "[[ $TRAVIS_BRANCH == \"master\" ]] && { mvn clean deploy -DskipTests; };"
   - mvn clean test jacoco:report coveralls:jacoco
 notifications:
   email: false
