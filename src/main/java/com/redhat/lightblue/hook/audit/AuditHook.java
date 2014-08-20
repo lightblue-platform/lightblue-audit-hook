@@ -27,7 +27,7 @@ public class AuditHook implements CRUDHook {
 
     public static final String ERR_MISSING_ID = "audit-hook:MissingID";
 
-    protected final class AuditData {
+    protected static final class AuditData {
         Path path;
         String pre;
         String post;
