@@ -27,7 +27,7 @@ public class AuditHook implements CRUDHook {
 
     public static final String ERR_MISSING_ID = "audit-hook:MissingID";
 
-    protected final class AuditData {
+    protected static final class AuditData {
         Path path;
         String pre;
         String post;
@@ -160,7 +160,7 @@ public class AuditHook implements CRUDHook {
                         Path p = e.getKey();
                         AuditData ad = e.getValue();
 
-                        buff.append(String.format("{\"field\":\"%s\",\"value\":\"%s\",\"when\":\"%s\"},", ad.path.toString(), ad.post, when));
+                        buff.append(String.format("{\"field\":\"%s\",\"old\":\"%s\"\"new\":\"%s\",,\"when\":\"%s\"},", ad.path.toString(), ad.pre, ad.post, when));
                     }
 
                     // trim last char, it's going to be tailing ','
