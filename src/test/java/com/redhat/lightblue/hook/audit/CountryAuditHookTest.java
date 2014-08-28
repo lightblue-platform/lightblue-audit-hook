@@ -235,8 +235,8 @@ public class CountryAuditHookTest extends AbstractHookTest {
         
         Path key = audits.keySet().iterator().next();
         Assert.assertEquals("optionalField", key.toString());
-        Assert.assertNull(audits.get(key).pre);
-        Assert.assertEquals("changed", audits.get(key).post);
+        Assert.assertNull(audits.get(key).oldValue);
+        Assert.assertEquals("changed", audits.get(key).newValue);
     }
 
     /**

@@ -27,10 +27,42 @@ public class AuditHook implements CRUDHook {
 
     public static final String ERR_MISSING_ID = "audit-hook:MissingID";
 
+    /**
+     * Modeled off the metadata for audit.
+     */
     protected static final class AuditData {
-        Path path;
-        String pre;
-        String post;
+        Path fieldText;
+        String oldValue;
+        String newValue;
+
+        public String toJson() {
+            StringBuilder buff = new StringBuilder("{");
+
+            toJson(buff, "fieldText", fieldText.toString());
+            toJson(buff, "oldValue", oldValue);
+            toJson(buff, "newValue", newValue);
+
+            // remove trailing comma
+            buff.deleteCharAt(buff.length() - 1);
+
+            buff.append("}");
+
+            return buff.toString();
+        }
+
+        /**
+         * If name or value is empty does nothing, else adds to the buffer.
+         * Note, always adds trailing comma! Strip it off if you don't want it.
+         *
+         * @param buff builder to add the text to
+         * @param name name of field
+         * @param value value of field
+         */
+        private void toJson(StringBuilder buff, String name, String value) {
+            if (name != null && !name.isEmpty() && value != null && !value.isEmpty()) {
+                buff.append(String.format("\"%s\":\"%s\",", name, value));
+            }
+        }
     }
 
     @Override
@@ -61,9 +93,9 @@ public class AuditHook implements CRUDHook {
                         || (preValue == null && postValue != null)) {
                     // something changed! audit it..
                     AuditData ad = new AuditData();
-                    ad.path = path;
-                    ad.pre = preValue;
-                    ad.post = postValue;
+                    ad.fieldText = path;
+                    ad.oldValue = preValue;
+                    ad.newValue = postValue;
                     audits.put(path, ad);
                 }
             }
@@ -85,9 +117,9 @@ public class AuditHook implements CRUDHook {
                         || (preValue == null && postValue != null)) {
                     // something changed! audit it..
                     AuditData ad = new AuditData();
-                    ad.path = path;
-                    ad.pre = preValue;
-                    ad.post = postValue;
+                    ad.fieldText = path;
+                    ad.oldValue = preValue;
+                    ad.newValue = postValue;
                     audits.put(path, ad);
                 }
             }
@@ -120,7 +152,7 @@ public class AuditHook implements CRUDHook {
                 List<JsonNode> identifyingNodes = new ArrayList<>();
 
                 if (!audits.isEmpty()) {
-                    String when = DateType.getDateFormat().format(hd.getWhen());
+                    String lastUpdateDate = DateType.getDateFormat().format(hd.getWhen());
 
                     // attempt to get set of fields that identify the document from:
                     //  1) pre doc
@@ -153,18 +185,22 @@ public class AuditHook implements CRUDHook {
                     // NOTE: for simplicity I'm going to leave the trailing pipe (|) to simplify this
 
                     // see metadata/audit.json for structure
-                    StringBuilder buff = new StringBuilder(String.format("{\"_id\" : \"%s|%s\",\"audits\":[", hd.getEntityMetadata().getName(), identityString.toString()));
+                    StringBuilder buff = new StringBuilder(String.format("{\"_id\":\"%s|%s\",\"entityName\":\"%s\",\"versionText\":\"%s\",\"lastUpdateDate\":\"%s\",\"audits\":[", 
+                            hd.getEntityMetadata().getName(), identityString.toString(),
+                            hd.getEntityMetadata().getName(),
+                            hd.getEntityMetadata().getVersion().getValue(),
+                            lastUpdateDate));
 
                     // audit those that did change
                     for (Entry<Path, AuditData> e : audits.entrySet()) {
-                        Path p = e.getKey();
                         AuditData ad = e.getValue();
 
-                        buff.append(String.format("{\"field\":\"%s\",\"old\":\"%s\"\"new\":\"%s\",,\"when\":\"%s\"},", ad.path.toString(), ad.pre, ad.post, when));
+                        // append the individual audit and always a comma.  
+                        buff.append(ad.toJson()).append(",");
                     }
 
                     // trim last char, it's going to be tailing ','
-                    buff.replace(buff.length() - 1, buff.length(), "");
+                    buff.deleteCharAt(buff.length() - 1);
 
                     // and close it
                     buff.append("]}");
