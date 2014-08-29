@@ -88,7 +88,7 @@ public class AuditHookTest extends AbstractHookTest {
         EntityMetadata em = parser.parseEntityMetadata(json(jsonSchemaString));
 
         // create hook configuration
-        AuditHookConfiguration config = new AuditHookConfiguration("test", "1.0.0");
+        AuditHookConfiguration config = new AuditHookConfiguration("test", "1.0.0", "https://localhost/rest/data");
 
         // ------------------------------------------------------------
         // mock up document data

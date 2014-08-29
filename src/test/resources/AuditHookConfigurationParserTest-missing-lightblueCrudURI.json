@@ -4,8 +4,8 @@
         {
             "name": "auditHook",
             "configuration": {
-                "version": "1.0.0",
-                "lightblueCrudURI": "https://localhost/rest/data"
+                "entityName": "audit",
+                "version": "1.0.0"
             }
         }
     ],

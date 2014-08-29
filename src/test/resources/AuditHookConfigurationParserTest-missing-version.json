@@ -4,7 +4,8 @@
         {
             "name": "auditHook",
             "configuration": {
-                "entityName": "audit"
+                "entityName": "audit",
+                "lightblueCrudURI": "https://localhost/rest/data"
             }
         }
     ],

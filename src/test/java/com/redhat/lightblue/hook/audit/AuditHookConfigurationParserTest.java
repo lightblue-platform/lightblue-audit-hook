@@ -19,26 +19,6 @@ public class AuditHookConfigurationParserTest extends AbstractHookTest {
     }
 
     @Test
-    public void testValidJson() throws IOException, URISyntaxException {
-        String jsonString = FileUtil.readFile(getClass().getSimpleName() + "-valid.json");
-
-        Assert.assertNotNull(jsonString);
-
-        JsonNode node = json(jsonString);
-
-        EntityInfo entityInfo = parser.parseEntityInfo(node);
-
-        Assert.assertNotNull(entityInfo);
-        Assert.assertFalse(entityInfo.getHooks().isEmpty());
-        Assert.assertEquals(AuditHook.HOOK_NAME, entityInfo.getHooks().getHooks().get(0).getName());
-
-        // verify configuration
-        Assert.assertEquals("audit", ((AuditHookConfiguration) entityInfo.getHooks().getHooks().get(0).getConfiguration()).getEntityName());
-        Assert.assertEquals("1.0.0", ((AuditHookConfiguration) entityInfo.getHooks().getHooks().get(0).getConfiguration()).getVersion());
-
-    }
-
-    @Test
     public void testMissingVersion() throws IOException, URISyntaxException {
         String jsonString = FileUtil.readFile(getClass().getSimpleName() + "-missing-version.json");
 
@@ -73,6 +53,23 @@ public class AuditHookConfigurationParserTest extends AbstractHookTest {
     }
 
     @Test
+    public void testMissingLightblueCrudURI() throws IOException, URISyntaxException {
+        String jsonString = FileUtil.readFile(getClass().getSimpleName() + "-missing-lightblueCrudURI.json");
+
+        Assert.assertNotNull(jsonString);
+
+        JsonNode node = json(jsonString);
+
+        try {
+            EntityInfo entityInfo = parser.parseEntityInfo(node);
+            Assert.fail("Expected Error to be thrown");
+        } catch (Error e) {
+            Assert.assertEquals(MetadataConstants.ERR_PARSE_MISSING_ELEMENT, e.getErrorCode());
+            Assert.assertEquals(AuditHookConfigurationParser.PROPERTY_LIGHTBLUE_CRUD_URI, e.getMsg());
+        }
+    }
+
+    @Test
     public void testMissingConfiguration() throws IOException, URISyntaxException {
         String jsonString = FileUtil.readFile(getClass().getSimpleName() + "-missing-configuration.json");
 
@@ -89,8 +86,28 @@ public class AuditHookConfigurationParserTest extends AbstractHookTest {
     }
 
     @Test
-    public void parse() throws IOException {
-        String jsonString = "{\"entityName\": \"audit\",\"version\": \"1.0.0\"}";
+    public void testValidJson() throws IOException, URISyntaxException {
+        String jsonString = FileUtil.readFile(getClass().getSimpleName() + "-valid.json");
+
+        Assert.assertNotNull(jsonString);
+
+        JsonNode node = json(jsonString);
+
+        EntityInfo entityInfo = parser.parseEntityInfo(node);
+
+        Assert.assertNotNull(entityInfo);
+        Assert.assertFalse(entityInfo.getHooks().isEmpty());
+        Assert.assertEquals(AuditHook.HOOK_NAME, entityInfo.getHooks().getHooks().get(0).getName());
+
+        // verify configuration
+        Assert.assertEquals("audit", ((AuditHookConfiguration) entityInfo.getHooks().getHooks().get(0).getConfiguration()).getEntityName());
+        Assert.assertEquals("1.0.0", ((AuditHookConfiguration) entityInfo.getHooks().getHooks().get(0).getConfiguration()).getVersion());
+        Assert.assertEquals("https://localhost/rest/data", ((AuditHookConfiguration) entityInfo.getHooks().getHooks().get(0).getConfiguration()).getLightblueCrudURI());
+    }
+
+    @Test
+    public void parse() throws IOException, URISyntaxException {
+        String jsonString = "{\"entityName\":\"audit\",\"version\":\"1.0.0\",\"lightblueCrudURI\":\"https://localhost/rest/data\"}";
 
         AuditHookConfigurationParser p = new AuditHookConfigurationParser();
 
@@ -98,11 +115,12 @@ public class AuditHookConfigurationParserTest extends AbstractHookTest {
 
         Assert.assertEquals("audit", config.getEntityName());
         Assert.assertEquals("1.0.0", config.getVersion());
+        Assert.assertEquals("https://localhost/rest/data", config.getLightblueCrudURI());
     }
 
     @Test
-    public void convert() throws IOException {
-        String jsonString = "{\"entityName\": \"audit\",\"version\": \"1.0.0\"}";
+    public void convert() throws IOException, URISyntaxException {
+        String jsonString = "{\"entityName\":\"audit\",\"version\":\"1.0.0\",\"lightblueCrudURI\":\"https://localhost/rest/data\"}";
 
         AuditHookConfigurationParser p = new AuditHookConfigurationParser();
 
@@ -114,5 +132,6 @@ public class AuditHookConfigurationParserTest extends AbstractHookTest {
 
         Assert.assertEquals("audit", node.get("entityName").asText());
         Assert.assertEquals("1.0.0", node.get("version").asText());
+        Assert.assertEquals("https://localhost/rest/data", node.get("lightblueCrudURI").asText());
     }
 }

@@ -27,6 +27,7 @@ import org.junit.Test;
  */
 public class CountryAuditHookTest extends AbstractHookTest {
     protected static final String COUNTRY_METADATA_FILENAME = "metadata/country.json";
+    protected static final String LIGHTBLUE_CRUD_URI = "https://localhost/rest/data";
 
     /**
      * Verify country.json against metadata json schema.
@@ -94,7 +95,7 @@ public class CountryAuditHookTest extends AbstractHookTest {
         EntityMetadata em = parser.parseEntityMetadata(json(jsonSchemaString));
 
         // create hook configuration
-        AuditHookConfiguration config = new AuditHookConfiguration(em.getName(), em.getVersion().getValue());
+        AuditHookConfiguration config = new AuditHookConfiguration(em.getName(), em.getVersion().getValue(), LIGHTBLUE_CRUD_URI);
 
         // ------------------------------------------------------------
         // mock up document data
@@ -132,7 +133,7 @@ public class CountryAuditHookTest extends AbstractHookTest {
         EntityMetadata em = parser.parseEntityMetadata(json(jsonSchemaString));
 
         // create hook configuration
-        AuditHookConfiguration config = new AuditHookConfiguration(em.getName(), em.getVersion().getValue());
+        AuditHookConfiguration config = new AuditHookConfiguration(em.getName(), em.getVersion().getValue(), LIGHTBLUE_CRUD_URI);
 
         // ------------------------------------------------------------
         // mock up document data
@@ -170,7 +171,7 @@ public class CountryAuditHookTest extends AbstractHookTest {
         EntityMetadata em = parser.parseEntityMetadata(json(jsonSchemaString));
 
         // create hook configuration
-        AuditHookConfiguration config = new AuditHookConfiguration(em.getName(), em.getVersion().getValue());
+        AuditHookConfiguration config = new AuditHookConfiguration(em.getName(), em.getVersion().getValue(), LIGHTBLUE_CRUD_URI);
 
         // ------------------------------------------------------------
         // mock up document data
@@ -204,7 +205,7 @@ public class CountryAuditHookTest extends AbstractHookTest {
         EntityMetadata em = parser.parseEntityMetadata(json(jsonSchemaString));
 
         // create hook configuration
-        AuditHookConfiguration config = new AuditHookConfiguration(em.getName(), em.getVersion().getValue());
+        AuditHookConfiguration config = new AuditHookConfiguration(em.getName(), em.getVersion().getValue(), LIGHTBLUE_CRUD_URI);
 
         // ------------------------------------------------------------
         // mock up document data
@@ -250,7 +251,7 @@ public class CountryAuditHookTest extends AbstractHookTest {
         EntityMetadata em = parser.parseEntityMetadata(json(jsonSchemaString));
 
         // create hook configuration
-        AuditHookConfiguration config = new AuditHookConfiguration(em.getName(), em.getVersion().getValue());
+        AuditHookConfiguration config = new AuditHookConfiguration(em.getName(), em.getVersion().getValue(), LIGHTBLUE_CRUD_URI);
 
         // ------------------------------------------------------------
         // mock up document data

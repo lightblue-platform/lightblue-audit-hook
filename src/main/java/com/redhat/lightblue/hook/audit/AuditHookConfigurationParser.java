@@ -13,6 +13,7 @@ import com.redhat.lightblue.metadata.parser.MetadataParser;
 public class AuditHookConfigurationParser implements HookConfigurationParser<JsonNode> {
     public static final String PROPERTY_ENTITY_NAME = "entityName";
     public static final String PROPERTY_VERSION = "version";
+    public static final String PROPERTY_LIGHTBLUE_CRUD_URI = "lightblueCrudURI";
     
     @Override
     public String getName() {
@@ -24,8 +25,9 @@ public class AuditHookConfigurationParser implements HookConfigurationParser<Jso
         // note: name is the hook name (comes from generic Parser interface)
         String entityName = p.getRequiredStringProperty(node, PROPERTY_ENTITY_NAME);
         String version = p.getRequiredStringProperty(node, PROPERTY_VERSION);
+        String lightblueCrudURI = p.getRequiredStringProperty(node, PROPERTY_LIGHTBLUE_CRUD_URI);
 
-        return new AuditHookConfiguration(entityName, version);
+        return new AuditHookConfiguration(entityName, version, lightblueCrudURI);
     }
 
     @Override
@@ -34,6 +36,7 @@ public class AuditHookConfigurationParser implements HookConfigurationParser<Jso
             AuditHookConfiguration ahc = (AuditHookConfiguration) object;
             p.putValue(emptyNode, PROPERTY_ENTITY_NAME, ahc.getEntityName());
             p.putValue(emptyNode, PROPERTY_VERSION, ahc.getVersion());
+            p.putValue(emptyNode, PROPERTY_LIGHTBLUE_CRUD_URI, ahc.getLightblueCrudURI());
         }
     }
 }

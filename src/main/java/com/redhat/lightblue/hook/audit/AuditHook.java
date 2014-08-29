@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Audit hook implementation that writes audit data to a lightblue entity.
@@ -23,6 +25,8 @@ import java.util.Map.Entry;
  * @author nmalik
  */
 public class AuditHook implements CRUDHook {
+    private final Logger LOGGER = LoggerFactory.getLogger(AuditHook.class);
+
     public static final String HOOK_NAME = "auditHook";
 
     public static final String ERR_MISSING_ID = "audit-hook:MissingID";
@@ -185,7 +189,7 @@ public class AuditHook implements CRUDHook {
                     // NOTE: for simplicity I'm going to leave the trailing pipe (|) to simplify this
 
                     // see metadata/audit.json for structure
-                    StringBuilder buff = new StringBuilder(String.format("{\"_id\":\"%s|%s\",\"entityName\":\"%s\",\"versionText\":\"%s\",\"lastUpdateDate\":\"%s\",\"audits\":[", 
+                    StringBuilder buff = new StringBuilder(String.format("{\"_id\":\"%s|%s\",\"entityName\":\"%s\",\"versionText\":\"%s\",\"lastUpdateDate\":\"%s\",\"audits\":[",
                             hd.getEntityMetadata().getName(), identityString.toString(),
                             hd.getEntityMetadata().getName(),
                             hd.getEntityMetadata().getVersion().getValue(),
@@ -205,7 +209,8 @@ public class AuditHook implements CRUDHook {
                     // and close it
                     buff.append("]}");
 
-                    // TODO do something with this...
+                    // TODO code to use http client to call out to lightblue using URI in cfg
+                    // discussion for reference for now: http://dev.forum.lightblue.io/Client-http-library-td124.html
                 }
             }
         } finally {
