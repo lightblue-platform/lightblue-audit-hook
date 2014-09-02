@@ -1,6 +1,10 @@
 package com.redhat.lightblue.hook.audit;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.redhat.lightblue.ClientIdentification;
+import com.redhat.lightblue.Response;
+import com.redhat.lightblue.crud.InsertionRequest;
 import com.redhat.lightblue.crud.Operation;
 import com.redhat.lightblue.hooks.CRUDHook;
 import com.redhat.lightblue.hooks.HookDoc;
@@ -8,9 +12,11 @@ import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Field;
 import com.redhat.lightblue.metadata.HookConfiguration;
 import com.redhat.lightblue.metadata.types.DateType;
+import com.redhat.lightblue.rest.RestConfiguration;
 import java.util.List;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonNodeCursor;
+import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.util.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -181,21 +187,36 @@ public class AuditHook implements CRUDHook {
                         identifyingNodes.add(node);
                     }
 
-                    // build key for identity
-                    StringBuilder identityString = new StringBuilder();
+                    /*
+                    Structure is noted here as one builder is created for all of this
+                    - common bits: http://docs.lightblue.io/language_specification/data.html#common-request
+                    --- specifically: entity, entityVersion
+                    - insert bits: http://docs.lightblue.io/language_specification/data.html#insert
+                    --- specifically: data
+                    - as part of data, things to note:
+                    --- _id is concatenation of all identity fields
+                    */
+                    
+                    StringBuilder buff = new StringBuilder();
+                    // common bits: (note, includes starting { for first data element and _id field name and first paren for value)
+                    buff.append(String.format("{\"entity\":\"%s\",\"entityVersion\":\"%s\",\"data\":[{\"_id\":\"%s|", 
+                            hd.getEntityMetadata().getName(),
+                            hd.getEntityMetadata().getVersion().getValue(),
+                            hd.getEntityMetadata().getName()));
+                    
+                    // insert bits: _id (concatenation of identity fields starting with entity name)
                     for (JsonNode node : identifyingNodes) {
-                        identityString.append(node.asText()).append("|");
+                        buff.append(node.asText()).append("|");
                     }
                     // NOTE: for simplicity I'm going to leave the trailing pipe (|) to simplify this
-
-                    // see metadata/audit.json for structure
-                    StringBuilder buff = new StringBuilder(String.format("{\"_id\":\"%s|%s\",\"entityName\":\"%s\",\"versionText\":\"%s\",\"lastUpdateDate\":\"%s\",\"audits\":[",
-                            hd.getEntityMetadata().getName(), identityString.toString(),
+                    // insert bits: close _id field and add header data for audit
+                    // see metadata/audit.json for full data structure
+                    buff.append(String.format("\",\"entityName\":\"%s\",\"versionText\":\"%s\",\"lastUpdateDate\":\"%s\",\"audits\":[",
                             hd.getEntityMetadata().getName(),
                             hd.getEntityMetadata().getVersion().getValue(),
                             lastUpdateDate));
 
-                    // audit those that did change
+                    // add each thing to be audited (includes a trailing comma)
                     for (Entry<Path, AuditData> e : audits.entrySet()) {
                         AuditData ad = e.getValue();
 
@@ -203,14 +224,42 @@ public class AuditHook implements CRUDHook {
                         buff.append(ad.toJson()).append(",");
                     }
 
-                    // trim last char, it's going to be tailing ','
+                    // trim last char, it is the tailing ','
                     buff.deleteCharAt(buff.length() - 1);
 
-                    // and close it
-                    buff.append("]}");
+                    // and close the data and insert request
+                    buff.append("]}]}");
 
-                    // TODO code to use http client to call out to lightblue using URI in cfg
-                    // discussion for reference for now: http://dev.forum.lightblue.io/Client-http-library-td124.html
+                    // All data prepared, do the insert!
+                    try {
+                        // create insert request
+                        InsertionRequest ireq = InsertionRequest.fromJson((ObjectNode) JsonUtils.json(buff.toString()));
+                        // add client identifier bits
+                        ireq.setClientId(new ClientIdentification() {
+                            @Override
+                            public boolean isUserInRole(String role) {
+                                // audit hook is only doing insert and must always be allowed to do insert.
+                                return true;
+                            }
+
+                            @Override
+                            public String getPrincipal() {
+                                return HOOK_NAME;
+                            }
+                        });
+                        // issue insert against crud mediator
+                        Response r = RestConfiguration.getFactory().getMediator().insert(ireq);
+                        if (!r.getErrors().isEmpty()) {
+                            // there are errors.  there is nowhere to return errors so just log them for now
+                            for (Error e: r.getErrors()) {
+                                LOGGER.error(e.toString());
+                            }
+                        }
+                    } catch (Error e) {
+                        LOGGER.error("insert failure: {}", e);
+                    } catch (Exception e) {
+                        LOGGER.error("insert failure: {}", e);
+                    }
                 }
             }
         } finally {

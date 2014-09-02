@@ -149,6 +149,12 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.redhat.lightblue.rest</groupId>
+            <artifactId>rest-common</artifactId>
+            <version>0.9.1-SNAPSHOT</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
     <properties>
         <sonar.exclusions>**/*Test.java,**/*Exception.java</sonar.exclusions>
