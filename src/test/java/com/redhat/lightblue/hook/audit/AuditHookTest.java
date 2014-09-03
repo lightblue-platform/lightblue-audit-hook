@@ -92,7 +92,7 @@ public class AuditHookTest extends AbstractHookTest {
         EntityMetadata fooMetadata  = parser.parseEntityMetadata(json(FileUtil.readFile(FOO_METADATA_FILENAME)));
 
         // create audit hook configuration
-        AuditHookConfiguration config = new AuditHookConfiguration("foo", "0.1.0-SNAPSHOT", "https://localhost/rest/data");
+        AuditHookConfiguration config = new AuditHookConfiguration("foo", "0.1.0-SNAPSHOT");
 
         // ------------------------------------------------------------
         // mock up document data

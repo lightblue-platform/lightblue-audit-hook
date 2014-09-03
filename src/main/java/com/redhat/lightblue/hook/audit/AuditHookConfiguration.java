@@ -9,12 +9,10 @@ import com.redhat.lightblue.metadata.HookConfiguration;
 public class AuditHookConfiguration implements HookConfiguration {
     private final String entityName;
     private final String version;
-    private final String lightblueCrudURI;
 
-    public AuditHookConfiguration(String entityName, String version, String lightblueCrudURI) {
+    public AuditHookConfiguration(String entityName, String version) {
         this.entityName = entityName;
         this.version = version;
-        this.lightblueCrudURI = lightblueCrudURI;
     }
 
     /**
@@ -29,12 +27,5 @@ public class AuditHookConfiguration implements HookConfiguration {
      */
     public String getVersion() {
         return version;
-    }
-
-    /**
-     * @return the lightblueCrudUri
-     */
-    public String getLightblueCrudURI() {
-        return lightblueCrudURI;
     }
 }

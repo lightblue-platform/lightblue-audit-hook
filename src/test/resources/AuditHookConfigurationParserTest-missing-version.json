@@ -4,12 +4,13 @@
         {
             "name": "auditHook",
             "configuration": {
-                "entityName": "audit",
-                "lightblueCrudURI": "https://localhost/rest/data"
+                "entityName": "audit"
             }
         }
     ],
     "datastore": {
-        "backend": "mongo"
+        "backend": "mongo",
+        "datasource": "mongo",
+        "collection": "none"
     }
 }
