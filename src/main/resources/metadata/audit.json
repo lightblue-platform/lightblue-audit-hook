@@ -1,6 +1,7 @@
 {
     "entityInfo": {
         "name": "audit",
+        "defaultVersion": "0.2.0-SNAPSHOT",
         "datastore": {
             "backend": "mongo",
             "datasource": "mongo",
@@ -23,13 +24,6 @@
             "delete": ["anyone"]
         },
         "fields": {
-            "_id": {
-                "type": "string",
-                "description": "Delimited field with format: <entityName>|<entity _id>",
-                "constraints": {
-                    "identity": 1
-                }
-            },
             "entityName": {
                 "type": "string",
                 "description": "Name of the entity audited",
@@ -54,6 +48,29 @@
             "lastUpdatedBy": {
                 "type": "string",
                 "description": "Who changed the field."
+            },
+            "identity": {
+                "type": "array",
+                "description": "The fields that identify the audited document",
+                "items": {
+                    "type": "object",
+                    "fields": {
+                        "fieldText": {
+                            "type": "string",
+                            "description": "The path for this identity field.",
+                            "constraints": {
+                                "required": true
+                            }
+                        },
+                        "valueText": {
+                            "type": "string",
+                            "description": "The value for this identity field.",
+                            "constraints": {
+                                "required": true
+                            }
+                        }
+                    }
+                }
             },
             "audits": {
                 "type": "array",

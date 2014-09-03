@@ -1,0 +1,31 @@
+{
+    "entityInfo": {
+        "name": "foo",
+        "datastore": {
+            "backend": "mongo",
+            "datasource": "mongo",
+            "collection": "foo"
+        }
+    },
+    "schema": {
+        "name": "foo",
+        "version": {
+            "value": "0.1.0-SNAPSHOT",
+            "changelog": "Initial version"
+        },
+        "status": {
+            "value": "active"
+        },
+        "fields": {
+            "foo": {
+                "type": "string",
+                "constraints": {
+                    "identity": true
+                }
+            },
+            "bar": {
+                "type": "string"
+            }
+        }
+    }
+}

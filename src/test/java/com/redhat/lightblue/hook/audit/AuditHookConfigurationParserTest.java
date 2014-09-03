@@ -134,4 +134,10 @@ public class AuditHookConfigurationParserTest extends AbstractHookTest {
         Assert.assertEquals("1.0.0", node.get("version").asText());
         Assert.assertEquals("https://localhost/rest/data", node.get("lightblueCrudURI").asText());
     }
+
+    @Override
+    protected String[] getMetadataResources() {
+        // there is no metadata for this test..
+        return new String[]{};
+    }
 }
