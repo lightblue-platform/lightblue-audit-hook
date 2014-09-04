@@ -63,10 +63,10 @@ public class AuditHook implements CRUDHook {
                         || (preValue == null && postValue != null)) {
                     // something changed! audit it..
                     AuditData ad = new AuditData();
-                    ad.fieldText = path;
-                    ad.oldValue = preValue;
-                    ad.newValue = postValue;
-                    audit.data.put(path, ad);
+                    ad.setFieldText(path);
+                    ad.setOldValue(preValue);
+                    ad.setNewValue(postValue);
+                    audit.addData(path, ad);
                 }
             }
             // else continue processing
@@ -77,7 +77,7 @@ public class AuditHook implements CRUDHook {
             JsonNode node = postCursor.getCurrentNode();
 
             // shortcut, don't check if we have an audit for the path already
-            if (!audit.data.containsKey(path) && node.isValueNode()) {
+            if (!audit.getData().containsKey(path) && node.isValueNode()) {
                 // non-container node, check if it changed
                 JsonNode preNode = processedDocument.getPreDoc().get(path);
                 String preValue = preNode == null ? null : preNode.asText();
@@ -87,26 +87,26 @@ public class AuditHook implements CRUDHook {
                         || (preValue == null && postValue != null)) {
                     // something changed! audit it..
                     AuditData ad = new AuditData();
-                    ad.fieldText = path;
-                    ad.oldValue = preValue;
-                    ad.newValue = postValue;
-                    audit.data.put(path, ad);
+                    ad.setFieldText(path);
+                    ad.setOldValue(preValue);
+                    ad.setNewValue(postValue);
+                    audit.addData(path, ad);
                 }
             }
             // else continue processing
         }
 
         // if there is nothing to audit, return null (meaning nothing to audit)
-        if (audit.data.isEmpty()) {
+        if (audit.getData().isEmpty()) {
             return null;
         }
 
         // simple optimization, set other fields on audit only if there is data
         // set top level things like last update who/when
-        audit.entityName = processedDocument.getEntityMetadata().getName();
-        audit.versionText = processedDocument.getEntityMetadata().getVersion().getValue();
-        audit.lastUpdateDate = DateType.getDateFormat().format(processedDocument.getWhen());
-        audit.lastUpdatedBy = processedDocument.getWho();
+        audit.setEntityName(processedDocument.getEntityMetadata().getName());
+        audit.setVersionText(processedDocument.getEntityMetadata().getVersion().getValue());
+        audit.setLastUpdateDate(DateType.getDateFormat().format(processedDocument.getWhen()));
+        audit.setLastUpdatedBy(processedDocument.getWho());
 
         // attempt to get set of fields that identify the document from:
         //  1) pre doc
@@ -129,9 +129,9 @@ public class AuditHook implements CRUDHook {
             }
 
             AuditIdentity identity = new AuditIdentity();
-            identity.fieldText = p.toString();
-            identity.valueText = node.asText();
-            audit.identity.add(identity);
+            identity.setFieldText(p.toString());
+            identity.setValueText(node.asText());
+            audit.addIdentity(identity);
         }
 
         return audit;
@@ -153,7 +153,7 @@ public class AuditHook implements CRUDHook {
                 Audit audit = findAuditFor(md, cfg, hd);
 
                 // if there's nothing to audit, stop
-                if (audit == null || audit.data.isEmpty()) {
+                if (audit == null || audit.getData().isEmpty()) {
                     return;
                 }
 
@@ -162,14 +162,14 @@ public class AuditHook implements CRUDHook {
                  - common bits: http://docs.lightblue.io/language_specification/data.html#common-request
                  --- specifically: entity, entityVersion
                  - insert bits: http://docs.lightblue.io/language_specification/data.html#insert
-                 --- specifically: audit.toJson();
+                 --- specifically: audit.toString();
                  */
                 StringBuilder buff = new StringBuilder();
                 // common bits: (note, includes starting { for first data element and _id field name and first paren for value)
                 // note that entity (name) is for audit, not the audited entity
                 buff.append(String.format("{\"entity\":\"%s\",\"data\":[%s]}",
                         "audit",
-                        audit.toJson()));
+                        audit.toString()));
 
                 // All data prepared, do the insert!
                 try {

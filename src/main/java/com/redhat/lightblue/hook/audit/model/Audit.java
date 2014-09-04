@@ -1,30 +1,93 @@
 package com.redhat.lightblue.hook.audit.model;
 
 import com.redhat.lightblue.util.Path;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- *
  * @author nmalik
  */
 public class Audit {
-    public String entityName;
-    public String versionText;
-    public String lastUpdateDate;
-    public String lastUpdatedBy;
-    public List<AuditIdentity> identity = new ArrayList<>();
-    public Map<Path, AuditData> data = new HashMap<>();
+    private String entityName;
+    private String versionText;
+    private String lastUpdateDate;
+    private String lastUpdatedBy;
+    private final List<AuditIdentity> identity = new ArrayList<>();
+    private final Map<Path, AuditData> data = new HashMap<>();
 
-    public String toJson() {
+    public String getEntityName() {
+        return entityName;
+    }
+
+    public void setEntityName(String entityName) {
+        this.entityName = entityName;
+    }
+
+    public String getVersionText() {
+        return versionText;
+    }
+
+    public void setVersionText(String versionText) {
+        this.versionText = versionText;
+    }
+
+    public String getLastUpdateDate() {
+        return lastUpdateDate;
+    }
+
+    public void setLastUpdateDate(String lastUpdateDate) {
+        this.lastUpdateDate = lastUpdateDate;
+    }
+
+    public String getLastUpdatedBy() {
+        return lastUpdatedBy;
+    }
+
+    public void setLastUpdatedBy(String lastUpdatedBy) {
+        this.lastUpdatedBy = lastUpdatedBy;
+    }
+
+    /**
+     * @param i the audited object's identity field (object can have many)
+     */
+    public void addIdentity(AuditIdentity i) {
+        identity.add(i);
+    }
+
+    /**
+     * WARNING: this is not a copy.
+     */
+    public List<AuditIdentity> getIdentity() {
+        return identity;
+    }
+
+    /**
+     * @param p the path to the data being audited
+     * @param d the auditable data
+     */
+    public void addData(Path p, AuditData d) {
+        data.put(p, d);
+    }
+
+    /**
+     * WARNING: this is not a copy.
+     */
+    public Map<Path, AuditData> getData() {
+        return data;
+    }
+
+
+    @Override
+    public String toString() {
         StringBuilder buff = new StringBuilder("{");
 
-        toJson(buff, "entityName", entityName);
-        toJson(buff, "versionText", versionText);
-        toJson(buff, "lastUpdateDate", lastUpdateDate);
-        toJson(buff, "lastUpdatedBy", lastUpdatedBy);
+        toString(buff, "entityName", getEntityName());
+        toString(buff, "versionText", getVersionText());
+        toString(buff, "lastUpdateDate", getLastUpdateDate());
+        toString(buff, "lastUpdatedBy", getLastUpdatedBy());
 
         // remove trailing comma
         buff.deleteCharAt(buff.length() - 1);
@@ -32,7 +95,7 @@ public class Audit {
         if (identity != null && !identity.isEmpty()) {
             buff.append(",\"identity\":[");
             for (AuditIdentity i : identity) {
-                buff.append(i.toJson()).append(",");
+                buff.append(i.toString()).append(",");
             }
             // remove trailing comma
             buff.deleteCharAt(buff.length() - 1);
@@ -42,7 +105,7 @@ public class Audit {
         if (data != null && !data.isEmpty()) {
             buff.append(",\"audits\":[");
             for (AuditData d : data.values()) {
-                buff.append(d.toJson()).append(",");
+                buff.append(d.toString()).append(",");
             }
             // remove trailing comma
             buff.deleteCharAt(buff.length() - 1);
@@ -58,14 +121,13 @@ public class Audit {
      * If name or value is empty does nothing, else adds to the buffer. Note,
      * always adds trailing comma! Strip it off if you don't want it.
      *
-     * @param buff builder to add the text to
-     * @param name name of field
+     * @param buff  builder to add the text to
+     * @param name  name of field
      * @param value value of field
      */
-    private void toJson(StringBuilder buff, String name, Object value) {
+    private void toString(StringBuilder buff, String name, Object value) {
         if (name != null && !name.isEmpty() && value != null && !value.toString().isEmpty()) {
             buff.append(String.format("\"%s\":\"%s\",", name, value.toString()));
         }
     }
-
 }
