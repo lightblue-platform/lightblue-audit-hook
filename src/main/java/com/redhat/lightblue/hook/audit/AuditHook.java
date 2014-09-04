@@ -106,6 +106,7 @@ public class AuditHook implements CRUDHook {
         audit.entityName = processedDocument.getEntityMetadata().getName();
         audit.versionText = processedDocument.getEntityMetadata().getVersion().getValue();
         audit.lastUpdateDate = DateType.getDateFormat().format(processedDocument.getWhen());
+        audit.lastUpdatedBy = processedDocument.getWho();
 
         // attempt to get set of fields that identify the document from:
         //  1) pre doc
