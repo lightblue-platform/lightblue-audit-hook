@@ -2,20 +2,22 @@ package com.redhat.lightblue.hook.audit;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.fge.jsonschema.main.JsonSchema;
+import com.mongodb.BasicDBList;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
 import com.redhat.lightblue.crud.Operation;
-import com.redhat.lightblue.hook.audit.AuditHook.AuditData;
+import com.redhat.lightblue.hook.audit.model.Audit;
 import com.redhat.lightblue.hooks.HookDoc;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Field;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.JsonUtils;
 import static com.redhat.lightblue.util.JsonUtils.json;
-import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.test.FileUtil;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
@@ -36,9 +38,9 @@ public class CountryAuditHookTest extends AbstractHookTest {
     @Test
     public void jsonSchema() throws Exception {
         String jsonSchemaString = FileUtil.readFile(COUNTRY_METADATA_FILENAME);
-        
+
         JsonNode node = json(jsonSchemaString);
-        
+
         JsonSchema schema = JsonUtils.loadSchema("json-schema/metadata/metadata.json");
         // verify metadata is valid
         String report = JsonUtils.jsonSchemaValidation(schema, node);
@@ -55,9 +57,9 @@ public class CountryAuditHookTest extends AbstractHookTest {
     @Test
     public void entityMetadata() throws Exception {
         String jsonSchemaString = FileUtil.readFile(COUNTRY_METADATA_FILENAME);
-        
+
         EntityMetadata em = parser.parseEntityMetadata(json(jsonSchemaString));
-        
+
         Assert.assertNotNull(em);
     }
 
@@ -70,7 +72,7 @@ public class CountryAuditHookTest extends AbstractHookTest {
     public void identifyingFields() throws Exception {
         String jsonSchemaString = FileUtil.readFile(COUNTRY_METADATA_FILENAME);
         EntityMetadata em = parser.parseEntityMetadata(json(jsonSchemaString));
-        
+
         Field[] identifyingFields = em.getEntitySchema().getIdentityFields();
         Assert.assertNotNull(identifyingFields);
         Assert.assertEquals(2, identifyingFields.length);
@@ -103,9 +105,9 @@ public class CountryAuditHookTest extends AbstractHookTest {
         // need a json node for pre and post data.  will create together to make easier
         JsonNode pre = json(FileUtil.readFile(getClass().getSimpleName() + "-missingOneIdentifyingField-pre.json"));
         JsonNode post = json(FileUtil.readFile(getClass().getSimpleName() + "-missingOneIdentifyingField-post.json"));
-        
+
         HookDoc hd = new HookDoc(em, new JsonDoc(pre), new JsonDoc(post), Operation.UPDATE);
-        
+
         processedDocuments.add(hd);
         // ------------------------------------------------------------
 
@@ -141,9 +143,9 @@ public class CountryAuditHookTest extends AbstractHookTest {
         // need a json node for pre and post data.  will create together to make easier
         JsonNode pre = json(FileUtil.readFile(getClass().getSimpleName() + "-missingAllIdentifyingFields-pre.json"));
         JsonNode post = json(FileUtil.readFile(getClass().getSimpleName() + "-missingAllIdentifyingFields-post.json"));
-        
+
         HookDoc hd = new HookDoc(em, new JsonDoc(pre), new JsonDoc(post), Operation.UPDATE);
-        
+
         processedDocuments.add(hd);
         // ------------------------------------------------------------
 
@@ -166,6 +168,10 @@ public class CountryAuditHookTest extends AbstractHookTest {
      */
     @Test
     public void noMissingIdentifyingFields() throws Exception {
+        // verify up front there is nothing in audit collection
+        DBCollection auditColl = mongo.getDB("mongo").createCollection("audit", null);
+        Assert.assertEquals(0, auditColl.find().count());
+
         String jsonSchemaString = FileUtil.readFile(COUNTRY_METADATA_FILENAME);
         EntityMetadata em = parser.parseEntityMetadata(json(jsonSchemaString));
 
@@ -179,9 +185,9 @@ public class CountryAuditHookTest extends AbstractHookTest {
         // need a json node for pre and post data.  will create together to make easier
         JsonNode pre = json(FileUtil.readFile(getClass().getSimpleName() + "-noMissingIdentifyingFields-pre.json"));
         JsonNode post = json(FileUtil.readFile(getClass().getSimpleName() + "-noMissingIdentifyingFields-post.json"));
-        
+
         HookDoc hd = new HookDoc(em, new JsonDoc(pre), new JsonDoc(post), Operation.UPDATE);
-        
+
         processedDocuments.add(hd);
         // ------------------------------------------------------------
 
@@ -190,6 +196,9 @@ public class CountryAuditHookTest extends AbstractHookTest {
 
         // process hook
         hook.processHook(em, config, processedDocuments);
+
+        // verify data was persisted
+        Assert.assertEquals(1, auditColl.find().count());
     }
 
     /**
@@ -200,6 +209,10 @@ public class CountryAuditHookTest extends AbstractHookTest {
      */
     @Test
     public void differentPreAndPost() throws Exception {
+        // verify up front there is nothing in audit collection
+        DBCollection auditColl = mongo.getDB("mongo").createCollection("audit", null);
+        Assert.assertEquals(0, auditColl.find().count());
+
         String jsonSchemaString = FileUtil.readFile(COUNTRY_METADATA_FILENAME);
         EntityMetadata em = parser.parseEntityMetadata(json(jsonSchemaString));
 
@@ -213,9 +226,9 @@ public class CountryAuditHookTest extends AbstractHookTest {
         // need a json node for pre and post data.  will create together to make easier
         JsonNode pre = json(FileUtil.readFile(getClass().getSimpleName() + "-differentPreAndPost-pre.json"));
         JsonNode post = json(FileUtil.readFile(getClass().getSimpleName() + "-differentPreAndPost-post.json"));
-        
+
         HookDoc hd = new HookDoc(em, new JsonDoc(pre), new JsonDoc(post), Operation.UPDATE);
-        
+
         processedDocuments.add(hd);
         // ------------------------------------------------------------
 
@@ -225,18 +238,17 @@ public class CountryAuditHookTest extends AbstractHookTest {
         // process hook
         hook.processHook(em, config, processedDocuments);
 
-        // TODO test side effect of process hook once implemented
+        // verify data persisted
+        Assert.assertEquals(1, auditColl.find().count());
+
+        DBObject dbobj = auditColl.findOne();
+        BasicDBList data = ((BasicDBList) dbobj.get("audits"));
+
+        Assert.assertFalse(data.isEmpty());
+        Assert.assertEquals(1, data.size());
         
-        // TODO until then, verify audit data found for the one document.
-        Map<Path, AuditData> audits = hook.findAuditsFor(em, config, hd);
-        
-        Assert.assertFalse(audits.isEmpty());
-        Assert.assertEquals(1, audits.size());
-        
-        Path key = audits.keySet().iterator().next();
-        Assert.assertEquals("optionalField", key.toString());
-        Assert.assertNull(audits.get(key).pre);
-        Assert.assertEquals("changed", audits.get(key).post);
+        Assert.assertEquals("optionalField", ((BasicDBObject)data.get(0)).get("fieldText").toString());
+        Assert.assertEquals("changed", ((BasicDBObject)data.get(0)).get("newValue").toString());
     }
 
     /**
@@ -246,6 +258,10 @@ public class CountryAuditHookTest extends AbstractHookTest {
      */
     @Test
     public void nothingToAudit() throws Exception {
+        // verify up front there is nothing in audit collection
+        DBCollection auditColl = mongo.getDB("mongo").createCollection("audit", null);
+        Assert.assertEquals(0, auditColl.find().count());
+
         String jsonSchemaString = FileUtil.readFile(COUNTRY_METADATA_FILENAME);
         EntityMetadata em = parser.parseEntityMetadata(json(jsonSchemaString));
 
@@ -259,9 +275,9 @@ public class CountryAuditHookTest extends AbstractHookTest {
         // need a json node for pre and post data.  will create together to make easier
         JsonNode pre = json(FileUtil.readFile(getClass().getSimpleName() + "-nothingToAudit-pre.json"));
         JsonNode post = json(FileUtil.readFile(getClass().getSimpleName() + "-nothingToAudit-post.json"));
-        
+
         HookDoc hd = new HookDoc(em, new JsonDoc(pre), new JsonDoc(post), Operation.UPDATE);
-        
+
         processedDocuments.add(hd);
         // ------------------------------------------------------------
 
@@ -272,8 +288,16 @@ public class CountryAuditHookTest extends AbstractHookTest {
         hook.processHook(em, config, processedDocuments);
 
         // and verify there is no audit data found for the one document.
-        Map<Path, AuditData> audits = hook.findAuditsFor(em, config, hd);
-        
-        Assert.assertTrue(audits.isEmpty());
+        Audit audit = hook.findAuditFor(em, config, hd);
+
+        Assert.assertNull(audit);
+
+        // verify audit collection still empty
+        Assert.assertEquals(0, auditColl.find().count());
+    }
+
+    @Override
+    protected String[] getMetadataResources() {
+        return new String[]{"metadata/audit.json","metadata/country.json"};
     }
 }

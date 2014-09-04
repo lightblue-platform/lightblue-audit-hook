@@ -10,6 +10,8 @@
         }
     ],
     "datastore": {
-        "backend": "mongo"
+        "backend": "mongo",
+        "datasource": "mongo",
+        "collection": "none"
     }
 }

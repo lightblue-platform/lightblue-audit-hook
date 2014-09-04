@@ -54,6 +54,12 @@
                 <version>${lightblue-mongo.version}</version>
             </dependency>
             <dependency>
+                <groupId>com.redhat.lightblue.mongo</groupId>
+                <artifactId>mongo-test</artifactId>
+                <version>${lightblue-mongo.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
                 <version>2.4.2</version>
@@ -141,6 +147,11 @@
         </dependency>
         <dependency>
             <groupId>com.redhat.lightblue.mongo</groupId>
+            <artifactId>mongo-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.redhat.lightblue.mongo</groupId>
             <artifactId>mongo-config</artifactId>
             <scope>test</scope>
         </dependency>
@@ -148,6 +159,12 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.redhat.lightblue.rest</groupId>
+            <artifactId>rest-common</artifactId>
+            <version>0.9.1-SNAPSHOT</version>
+            <type>jar</type>
         </dependency>
     </dependencies>
     <properties>

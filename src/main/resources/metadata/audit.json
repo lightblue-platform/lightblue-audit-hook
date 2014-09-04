@@ -1,6 +1,7 @@
 {
     "entityInfo": {
         "name": "audit",
+        "defaultVersion": "0.2.0-SNAPSHOT",
         "datastore": {
             "backend": "mongo",
             "datasource": "mongo",
@@ -10,7 +11,7 @@
     "schema": {
         "name": "audit",
         "version": {
-            "value": "0.1.0-SNAPSHOT",
+            "value": "0.2.0-SNAPSHOT",
             "changelog": "Initial version"
         },
         "status": {
@@ -23,11 +24,52 @@
             "delete": ["anyone"]
         },
         "fields": {
-            "_id": {
+            "entityName": {
                 "type": "string",
-                "description": "Delimited field with format: <entityName>|<entity _id>",
+                "description": "Name of the entity audited",
                 "constraints": {
-                    "identity": 1
+                    "required": true
+                }
+            },
+            "versionText": {
+                "type": "string",
+                "description": "Version of entity audited",
+                "constraints": {
+                    "required": true
+                }
+            },
+            "lastUpdateDate": {
+                "type": "date",
+                "description": "When the value was changed.",
+                "constraints": {
+                    "required": true
+                }
+            },
+            "lastUpdatedBy": {
+                "type": "string",
+                "description": "Who changed the field."
+            },
+            "identity": {
+                "type": "array",
+                "description": "The fields that identify the audited document",
+                "items": {
+                    "type": "object",
+                    "fields": {
+                        "fieldText": {
+                            "type": "string",
+                            "description": "The path for this identity field.",
+                            "constraints": {
+                                "required": true
+                            }
+                        },
+                        "valueText": {
+                            "type": "string",
+                            "description": "The value for this identity field.",
+                            "constraints": {
+                                "required": true
+                            }
+                        }
+                    }
                 }
             },
             "audits": {
@@ -36,21 +78,20 @@
                 "items": {
                     "type": "object",
                     "fields": {
-                        "field": {
+                        "fieldText": {
                             "type": "string",
-                            "description": "Path audited."
+                            "description": "Path audited.",
+                            "constraints": {
+                                "required": true
+                            }
                         },
-                        "value": {
+                        "oldValue": {
                             "type": "string",
-                            "description": "Value at the path."
+                            "description": "Previous value at the path."
                         },
-                        "when": {
-                            "type": "date",
-                            "description": "When the value was changed."
-                        },
-                        "who": {
+                        "newValue": {
                             "type": "string",
-                            "description": "Who changed the field [OPTIONAL]"
+                            "description": "New value at the path."
                         }
                     }
                 }
