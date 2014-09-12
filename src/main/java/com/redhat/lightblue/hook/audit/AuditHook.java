@@ -162,7 +162,7 @@ public class AuditHook implements CRUDHook {
                  - common bits: http://docs.lightblue.io/language_specification/data.html#common-request
                  --- specifically: entity, entityVersion
                  - insert bits: http://docs.lightblue.io/language_specification/data.html#insert
-                 --- specifically: audit.toString();
+                 --- specifically: audit toString
                  */
                 StringBuilder buff = new StringBuilder();
                 // common bits: (note, includes starting { for first data element and _id field name and first paren for value)
