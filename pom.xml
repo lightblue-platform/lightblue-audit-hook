@@ -163,7 +163,7 @@
         <dependency>
             <groupId>com.redhat.lightblue.rest</groupId>
             <artifactId>rest-common</artifactId>
-            <version>0.9.1-SNAPSHOT</version>
+            <version>${lightblue-rest.version}</version>
             <type>jar</type>
         </dependency>
     </dependencies>
@@ -176,6 +176,7 @@
         <sonar.projectName>lightblue-audit-hook</sonar.projectName>
         <lightblue-core.version>0.9.1-SNAPSHOT</lightblue-core.version>
         <lightblue-mongo.version>0.9.1-SNAPSHOT</lightblue-mongo.version>
+        <lightblue-rest.version>0.9.1-SNAPSHOT</lightblue-rest.version>
     </properties>
     <build>
         <plugins>
