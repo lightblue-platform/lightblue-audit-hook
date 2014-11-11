@@ -160,12 +160,6 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.redhat.lightblue.rest</groupId>
-            <artifactId>rest-common</artifactId>
-            <version>${lightblue-rest.version}</version>
-            <type>jar</type>
-        </dependency>
     </dependencies>
     <properties>
         <sonar.exclusions>**/*Test.java,**/*Exception.java</sonar.exclusions>
@@ -176,7 +170,6 @@
         <sonar.projectName>lightblue-audit-hook</sonar.projectName>
         <lightblue-core.version>1.0.0</lightblue-core.version>
         <lightblue-mongo.version>1.0.0</lightblue-mongo.version>
-        <lightblue-rest.version>1.0.0</lightblue-rest.version>
     </properties>
     <build>
         <plugins>

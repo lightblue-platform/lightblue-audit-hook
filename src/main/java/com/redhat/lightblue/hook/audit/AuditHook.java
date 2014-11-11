@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.ClientIdentification;
 import com.redhat.lightblue.Response;
+import com.redhat.lightblue.config.DataSourcesConfiguration;
+import com.redhat.lightblue.config.LightblueFactory;
 import com.redhat.lightblue.crud.InsertionRequest;
 import com.redhat.lightblue.crud.Operation;
 import com.redhat.lightblue.hook.audit.model.Audit;
@@ -15,8 +17,9 @@ import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Field;
 import com.redhat.lightblue.metadata.HookConfiguration;
 import com.redhat.lightblue.metadata.types.DateType;
-import com.redhat.lightblue.rest.RestConfiguration;
+
 import java.util.List;
+
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonNodeCursor;
 import com.redhat.lightblue.util.JsonUtils;
@@ -189,7 +192,7 @@ public class AuditHook implements CRUDHook {
                         }
                     });
                     // issue insert against crud mediator
-                    Response r = RestConfiguration.getFactory().getMediator().insert(ireq);
+                    Response r = getFactory().getMediator().insert(ireq);
                     if (!r.getErrors().isEmpty()) {
                         // there are errors.  there is nowhere to return errors so just log them for now
                         for (Error e : r.getErrors()) {
@@ -207,4 +210,23 @@ public class AuditHook implements CRUDHook {
             Error.pop();
         }
     }
+
+    private static LightblueFactory factory;
+
+    protected static LightblueFactory getFactory() {
+        return factory;
+    }
+
+    static {
+        // a striped down version of what is in lightblue-rest/config class RestConfiguration
+        DataSourcesConfiguration datasources = null;
+
+        try {
+            datasources = new DataSourcesConfiguration(JsonUtils.json(Thread.currentThread().getContextClassLoader().getResourceAsStream("datasources.json")));
+        } catch (Exception e) {
+            throw new RuntimeException("Cannot initialize datasources.", e);
+        }
+        factory = new LightblueFactory(datasources);
+    }
+
 }
