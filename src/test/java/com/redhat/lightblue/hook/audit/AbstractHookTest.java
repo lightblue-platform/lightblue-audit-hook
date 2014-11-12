@@ -16,7 +16,6 @@ import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.mongo.config.MongoConfiguration;
 import com.redhat.lightblue.mongo.test.AbstractMongoTest;
-import com.redhat.lightblue.rest.RestConfiguration;
 import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.util.test.FileUtil;
 import org.junit.After;
@@ -64,7 +63,7 @@ public abstract class AbstractHookTest extends AbstractMongoTest {
         for (String resource : getMetadataResources()) {
             String jsonString = FileUtil.readFile(resource);
             EntityMetadata em = parser.parseEntityMetadata(JsonUtils.json(jsonString));
-            RestConfiguration.getFactory().getMetadata().createNewMetadata(em);
+            AuditHook.getFactory().getMetadata().createNewMetadata(em);
         }
     }
 
