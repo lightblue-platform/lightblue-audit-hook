@@ -3,62 +3,87 @@
     <parent>
         <groupId>org.sonatype.oss</groupId>
         <artifactId>oss-parent</artifactId>
-        <relativePath></relativePath>
+        <relativePath />
         <version>7</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.redhat.lightblue.hook</groupId>
     <artifactId>audit</artifactId>
     <packaging>jar</packaging>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>1.2.0-SNAPSHOT</version>
     <name>lightblue audit hook: ${project.groupId}|${project.artifactId}</name>
     <description>Lightblue Audit Hook components</description>
+    <licenses>
+        <license>
+            <name>GNU GENERAL PUBLIC LICENSE, Version 3, 29 June 2007</name>
+            <url>http://www.gnu.org/licenses/gpl-3.0-standalone.html</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <scm>
+        <connection>scm:git:https://github.com/lightblue-platform/lightblue-audit-hook.git</connection>
+        <developerConnection>scm:git:git@github.com:lightblue-platform/lightblue-audit-hook.git</developerConnection>
+        <url>https://github.com/lightblue-platform/lightblue-audit-hook</url>
+        <tag>HEAD</tag>
+    </scm>
+    <distributionManagement>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>com.redhat.lightblue</groupId>
                 <artifactId>metadata</artifactId>
-                <version>0.1-SNAPSHOT</version>
+                <version>1.2.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.redhat.lightblue</groupId>
                 <artifactId>crud</artifactId>
-                <version>0.1-SNAPSHOT</version>
+                <version>1.2.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.redhat.lightblue.config</groupId>
                 <artifactId>core-config</artifactId>
-                <version>0.1-SNAPSHOT</version>
+                <version>1.2.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.redhat.lightblue.mongo</groupId>
                 <artifactId>mongo-config</artifactId>
-                <version>0.1-SNAPSHOT</version>
+                <version>1.2.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.redhat.lightblue.mongo</groupId>
                 <artifactId>mongo-metadata</artifactId>
-                <version>0.1-SNAPSHOT</version>
+                <version>1.1.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.redhat.lightblue.mongo</groupId>
+                <artifactId>mongo-test</artifactId>
+                <version>1.2.0-SNAPSHOT</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
-                <version>2.2.3</version>
+                <version>2.4.2</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>2.2.3</version>
+                <version>2.4.2</version>
             </dependency>
             <dependency>
                 <groupId>com.github.fge</groupId>
                 <artifactId>json-schema-core</artifactId>
-                <version>1.1.8</version>
+                <version>1.2.4</version>
             </dependency>
             <dependency>
                 <groupId>com.github.fge</groupId>
                 <artifactId>json-schema-validator</artifactId>
-                <version>2.1.7</version>
+                <version>2.2.5</version>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>
@@ -68,33 +93,33 @@
             <dependency>
                 <groupId>org.skyscreamer</groupId>
                 <artifactId>jsonassert</artifactId>
-                <version>1.2.1</version>
+                <version>1.2.3</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>1.7.5</version>
+                <version>1.7.7</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-log4j12</artifactId>
-                <version>1.7.5</version>
+                <version>1.7.7</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-simple</artifactId>
-                <version>1.7.5</version>
+                <version>1.7.7</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>com.netflix.servo</groupId>
                 <artifactId>servo-core</artifactId>
-                <version>0.5.5</version>
+                <version>0.7.8</version>
             </dependency>
             <dependency>
                 <groupId>com.netflix.servo</groupId>
                 <artifactId>servo-graphite</artifactId>
-                <version>0.5.5</version>
+                <version>0.7.8</version>
             </dependency>
             <dependency>
                 <groupId>com.netflix.hystrix</groupId>
@@ -125,6 +150,11 @@
         <dependency>
             <groupId>com.redhat.lightblue.config</groupId>
             <artifactId>core-config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.redhat.lightblue.mongo</groupId>
+            <artifactId>mongo-test</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.redhat.lightblue.mongo</groupId>
@@ -176,4 +206,69 @@
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-release-plugin</artifactId>
+                        <version>2.5</version>
+                        <configuration>
+                            <tagNameFormat>V@{project.version}</tagNameFormat>
+                            <autoVersionSubmodules>true</autoVersionSubmodules>
+                            <useReleaseProfile>false</useReleaseProfile>
+                            <releaseProfiles>release</releaseProfiles>
+                            <goals>deploy</goals>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <configuration>
+                            <useAgent>false</useAgent>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>1.6.2</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>ossrh</serverId>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>2.2.1</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>2.9.1</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

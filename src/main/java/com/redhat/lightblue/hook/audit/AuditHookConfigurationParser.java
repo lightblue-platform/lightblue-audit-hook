@@ -13,12 +13,12 @@ import com.redhat.lightblue.metadata.parser.MetadataParser;
 public class AuditHookConfigurationParser implements HookConfigurationParser<JsonNode> {
     public static final String PROPERTY_ENTITY_NAME = "entityName";
     public static final String PROPERTY_VERSION = "version";
-    
+
     @Override
     public String getName() {
         return AuditHook.HOOK_NAME;
     }
-    
+
     @Override
     public HookConfiguration parse(String name, MetadataParser<JsonNode> p, JsonNode node) {
         // note: name is the hook name (comes from generic Parser interface)
