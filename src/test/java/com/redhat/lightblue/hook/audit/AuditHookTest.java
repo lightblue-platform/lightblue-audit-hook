@@ -84,7 +84,7 @@ public class AuditHookTest extends AbstractHookTest {
     @Test
     public void updateWithId() throws Exception {
         // verify up front there is nothing in audit collection
-        DBCollection auditColl = mongo.getDB("mongo").createCollection("audit", null);
+        DBCollection auditColl = mongo.getDB().createCollection("audit", null);
         Assert.assertEquals(0, auditColl.find().count());
         
         // parse audit and foo metadata
