@@ -15,13 +15,14 @@ import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.mongo.config.MongoConfiguration;
-import com.redhat.lightblue.mongo.test.AbstractMongoTest;
 import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.util.test.FileUtil;
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
 
 /**
  * Abstract hook test assuming use of mongo backend and metadata for test as
@@ -40,7 +41,8 @@ public abstract class AbstractHookTest extends AbstractMongoTest {
     protected static JSONMetadataParser parser;
 
     @BeforeClass
-    public static void beforeClass() {
+    public static void beforeClass() throws Exception {
+        AbstractMongoTest.setupClass();
         DataSourcesConfiguration dsc = new DataSourcesConfiguration();
         dsc.add(DATASTORE_BACKEND, new MongoConfiguration());
         LightblueFactory mgr = new LightblueFactory(dsc);
@@ -58,20 +60,19 @@ public abstract class AbstractHookTest extends AbstractMongoTest {
     }
 
     @Before
-    public void setup() throws Exception {
+    public void setup()  {
+        super.setup();
         // create metadata
-        for (String resource : getMetadataResources()) {
-            String jsonString = FileUtil.readFile(resource);
-            EntityMetadata em = parser.parseEntityMetadata(JsonUtils.json(jsonString));
-            AuditHook.getFactory().getMetadata().createNewMetadata(em);
+        try {
+            for (String resource : getMetadataResources()) {
+                String jsonString = null;
+                jsonString = FileUtil.readFile(resource);
+                EntityMetadata em = parser.parseEntityMetadata(JsonUtils.json(jsonString));
+                AuditHook.getFactory().getMetadata().createNewMetadata(em);
+            }
+         } catch (Exception e) {
+            throw new IllegalStateException(e);
         }
-    }
-
-    @After
-    @Override
-    public void teardown() throws Exception {
-        super.teardown();
-        dropDatabase("mongo");
     }
 
     @AfterClass
