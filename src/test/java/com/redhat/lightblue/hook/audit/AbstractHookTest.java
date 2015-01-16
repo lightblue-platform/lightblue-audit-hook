@@ -17,10 +17,12 @@ import com.redhat.lightblue.mongo.config.MongoConfiguration;
 import com.redhat.lightblue.mongo.test.EmbeddedMongo;
 import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.util.test.FileUtil;
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
 
 /**
  * Abstract hook test assuming use of mongo backend and metadata for test as
@@ -42,7 +44,8 @@ public abstract class AbstractHookTest {
 
 
     @BeforeClass
-    public static void beforeClass() {
+    public static void beforeClass() throws Exception {
+        AbstractMongoTest.setupClass();
         DataSourcesConfiguration dsc = new DataSourcesConfiguration();
         dsc.add(DATASTORE_BACKEND, new MongoConfiguration());
     }
@@ -59,12 +62,18 @@ public abstract class AbstractHookTest {
     }
 
     @Before
-    public void setup() throws Exception {
+    public void setup()  {
+        super.setup();
         // create metadata
-        for (String resource : getMetadataResources()) {
-            String jsonString = FileUtil.readFile(resource);
-            EntityMetadata em = parser.parseEntityMetadata(JsonUtils.json(jsonString));
-            AuditHook.getFactory().getMetadata().createNewMetadata(em);
+        try {
+            for (String resource : getMetadataResources()) {
+                String jsonString = null;
+                jsonString = FileUtil.readFile(resource);
+                EntityMetadata em = parser.parseEntityMetadata(JsonUtils.json(jsonString));
+                AuditHook.getFactory().getMetadata().createNewMetadata(em);
+            }
+         } catch (Exception e) {
+            throw new IllegalStateException(e);
         }
     }
 
