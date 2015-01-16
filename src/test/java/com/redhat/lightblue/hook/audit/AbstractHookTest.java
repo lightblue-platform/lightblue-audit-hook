@@ -21,8 +21,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
+import org.junit.After;
 
 /**
  * Abstract hook test assuming use of mongo backend and metadata for test as
@@ -63,7 +62,6 @@ public abstract class AbstractHookTest {
 
     @Before
     public void setup()  {
-        super.setup();
         // create metadata
         try {
             for (String resource : getMetadataResources()) {
