@@ -8,21 +8,20 @@ package com.redhat.lightblue.hook.audit;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.config.DataSourcesConfiguration;
-import com.redhat.lightblue.config.LightblueFactory;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.mongo.config.MongoConfiguration;
+import com.redhat.lightblue.mongo.test.EmbeddedMongo;
 import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.util.test.FileUtil;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
+import org.junit.After;
 
 /**
  * Abstract hook test assuming use of mongo backend and metadata for test as
@@ -30,8 +29,9 @@ import java.net.URISyntaxException;
  *
  * @author nmalik
  */
-public abstract class AbstractHookTest extends AbstractMongoTest {
+public abstract class AbstractHookTest {
 
+    protected static EmbeddedMongo mongo = EmbeddedMongo.getInstance();
     protected static final String DATASTORE_BACKEND = "mongo";
 
     // reuse the json node factory, no need to create new ones each test
@@ -40,12 +40,13 @@ public abstract class AbstractHookTest extends AbstractMongoTest {
     protected static AuditHookConfigurationParser hookParser;
     protected static JSONMetadataParser parser;
 
+
+
     @BeforeClass
     public static void beforeClass() throws Exception {
         AbstractMongoTest.setupClass();
         DataSourcesConfiguration dsc = new DataSourcesConfiguration();
         dsc.add(DATASTORE_BACKEND, new MongoConfiguration());
-        LightblueFactory mgr = new LightblueFactory(dsc);
     }
 
     @BeforeClass
@@ -61,7 +62,6 @@ public abstract class AbstractHookTest extends AbstractMongoTest {
 
     @Before
     public void setup()  {
-        super.setup();
         // create metadata
         try {
             for (String resource : getMetadataResources()) {
@@ -73,6 +73,11 @@ public abstract class AbstractHookTest extends AbstractMongoTest {
          } catch (Exception e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    @After
+    public void teardown() throws Exception {
+        mongo.reset();
     }
 
     @AfterClass
