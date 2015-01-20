@@ -8,10 +8,10 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.redhat.lightblue.hook</groupId>
-    <artifactId>audit</artifactId>
+    <artifactId>lightblue-audit-hook</artifactId>
     <packaging>jar</packaging>
-    <version>1.2.0-SNAPSHOT</version>
-    <name>lightblue audit hook: ${project.groupId}|${project.artifactId}</name>
+    <version>1.3.0-SNAPSHOT</version>
+    <name>lightblue-audit-hook: ${project.groupId}|${project.artifactId}</name>
     <description>Lightblue Audit Hook components</description>
     <licenses>
         <license>
@@ -36,33 +36,33 @@
         <dependencies>
             <dependency>
                 <groupId>com.redhat.lightblue</groupId>
-                <artifactId>metadata</artifactId>
-                <version>1.2.0-SNAPSHOT</version>
+                <artifactId>lightblue-core-metadata</artifactId>
+                <version>1.3.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.redhat.lightblue</groupId>
-                <artifactId>crud</artifactId>
-                <version>1.2.0-SNAPSHOT</version>
+                <artifactId>lightblue-core-crud</artifactId>
+                <version>1.3.0-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>com.redhat.lightblue.config</groupId>
-                <artifactId>core-config</artifactId>
-                <version>1.2.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.redhat.lightblue.mongo</groupId>
-                <artifactId>mongo-config</artifactId>
-                <version>1.2.0-SNAPSHOT</version>
+                <groupId>com.redhat.lightblue</groupId>
+                <artifactId>lightblue-core-config</artifactId>
+                <version>1.3.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.redhat.lightblue.mongo</groupId>
-                <artifactId>mongo-metadata</artifactId>
-                <version>1.1.1</version>
+                <artifactId>lightblue-mongo-config</artifactId>
+                <version>1.3.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.redhat.lightblue.mongo</groupId>
-                <artifactId>mongo-test</artifactId>
-                <version>1.2.0-SNAPSHOT</version>
+                <artifactId>lightblue-mongo-metadata</artifactId>
+                <version>1.3.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.redhat.lightblue.mongo</groupId>
+                <artifactId>lightblue-mongo-test</artifactId>
+                <version>1.3.0-SNAPSHOT</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -141,24 +141,24 @@
     <dependencies>
         <dependency>
             <groupId>com.redhat.lightblue</groupId>
-            <artifactId>metadata</artifactId>
+            <artifactId>lightblue-core-metadata</artifactId>
         </dependency>
         <dependency>
             <groupId>com.redhat.lightblue</groupId>
-            <artifactId>crud</artifactId>
+            <artifactId>lightblue-core-crud</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.redhat.lightblue.config</groupId>
-            <artifactId>core-config</artifactId>
+            <groupId>com.redhat.lightblue</groupId>
+            <artifactId>lightblue-core-config</artifactId>
         </dependency>
         <dependency>
             <groupId>com.redhat.lightblue.mongo</groupId>
-            <artifactId>mongo-test</artifactId>
+            <artifactId>lightblue-mongo-test</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.redhat.lightblue.mongo</groupId>
-            <artifactId>mongo-config</artifactId>
+            <artifactId>lightblue-mongo-config</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

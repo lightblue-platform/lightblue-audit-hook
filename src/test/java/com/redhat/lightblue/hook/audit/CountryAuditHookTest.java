@@ -169,7 +169,7 @@ public class CountryAuditHookTest extends AbstractHookTest {
     @Test
     public void noMissingIdentifyingFields() throws Exception {
         // verify up front there is nothing in audit collection
-        DBCollection auditColl = mongo.getDB("mongo").createCollection("audit", null);
+        DBCollection auditColl = mongo.getDB().createCollection("audit", null);
         Assert.assertEquals(0, auditColl.find().count());
 
         String jsonSchemaString = FileUtil.readFile(COUNTRY_METADATA_FILENAME);
@@ -210,7 +210,7 @@ public class CountryAuditHookTest extends AbstractHookTest {
     @Test
     public void differentPreAndPost() throws Exception {
         // verify up front there is nothing in audit collection
-        DBCollection auditColl = mongo.getDB("mongo").createCollection("audit", null);
+        DBCollection auditColl = mongo.getDB().createCollection("audit", null);
         Assert.assertEquals(0, auditColl.find().count());
 
         String jsonSchemaString = FileUtil.readFile(COUNTRY_METADATA_FILENAME);
@@ -259,7 +259,7 @@ public class CountryAuditHookTest extends AbstractHookTest {
     @Test
     public void nothingToAudit() throws Exception {
         // verify up front there is nothing in audit collection
-        DBCollection auditColl = mongo.getDB("mongo").createCollection("audit", null);
+        DBCollection auditColl = mongo.getDB().createCollection("audit", null);
         Assert.assertEquals(0, auditColl.find().count());
 
         String jsonSchemaString = FileUtil.readFile(COUNTRY_METADATA_FILENAME);
