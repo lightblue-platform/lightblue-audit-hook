@@ -4,14 +4,12 @@ jdk:
     - oraclejdk8
 before_install:
     - cp ./etc/settings.xml ~/.m2/
-    - cp ./etc/settings-arquillian.xml ~/
     - cp ./etc/onFailure.sh  ~/
     - cp ./etc/onSuccess.sh  ~/
-    - cp ./etc/logging.properties  ~/
     - chmod 777 ~/onFailure.sh
     - chmod 777 ~/onSuccess.sh
 script:
-    - mvn -B clean verify cobertura:cobertura coveralls:cobertura -Dorg.apache.maven.user-settings=~/settings-arquillian.xml -Dorg.apache.maven.global-settings=~/settings-arquillian.xml
+    - mvn -B clean verify cobertura:cobertura coveralls:report
 after_failure: ~/onFailure.sh
 after_success: ~/onSuccess.sh
 notifications:
@@ -20,6 +18,7 @@ notifications:
         channels:
             - chat.freenode.net#lightblue
     on_success: always
+    flowdock: 7496abec1be386352676d957bb66e027
 env:
     global:
         - secure: BiobCgn6K201T4SjEwr3PqY9dl9Comw8mq3XppO33ahAl995f/sXvorSpMRiKJkuT27MOQGhH6lTYQBy32jbeShQaI3HIyEYyi8KaO6AM+CmaRGN5t2E3Oe0WmzUy1x3aQKj9k8CC4/X3fhHQD1yaANJWZz5qeumcQgYKeb5ojE=
