@@ -1,7 +1,7 @@
 {
     "entityInfo": {
         "name": "audit",
-        "defaultVersion": "0.2.0-SNAPSHOT",
+        "defaultVersion": "1.0.0",
         "datastore": {
             "backend": "mongo",
             "datasource": "mongo",
@@ -11,7 +11,7 @@
     "schema": {
         "name": "audit",
         "version": {
-            "value": "0.2.0-SNAPSHOT",
+            "value": "1.0.0",
             "changelog": "Initial version"
         },
         "status": {
