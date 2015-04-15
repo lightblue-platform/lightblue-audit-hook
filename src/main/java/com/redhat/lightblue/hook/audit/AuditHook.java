@@ -1,21 +1,31 @@
 package com.redhat.lightblue.hook.audit;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.redhat.lightblue.ClientIdentification;
+import com.redhat.lightblue.Response;
+import com.redhat.lightblue.config.DataSourcesConfiguration;
+import com.redhat.lightblue.config.LightblueFactory;
+import com.redhat.lightblue.crud.InsertionRequest;
 import com.redhat.lightblue.crud.Operation;
+import com.redhat.lightblue.hook.audit.model.Audit;
+import com.redhat.lightblue.hook.audit.model.AuditData;
+import com.redhat.lightblue.hook.audit.model.AuditIdentity;
 import com.redhat.lightblue.hooks.CRUDHook;
 import com.redhat.lightblue.hooks.HookDoc;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Field;
 import com.redhat.lightblue.metadata.HookConfiguration;
 import com.redhat.lightblue.metadata.types.DateType;
+
 import java.util.List;
+
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonNodeCursor;
+import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.util.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Audit hook implementation that writes audit data to a lightblue entity.
@@ -23,28 +33,23 @@ import java.util.Map.Entry;
  * @author nmalik
  */
 public class AuditHook implements CRUDHook {
+    private final Logger LOGGER = LoggerFactory.getLogger(AuditHook.class);
+
     public static final String HOOK_NAME = "auditHook";
 
     public static final String ERR_MISSING_ID = "audit-hook:MissingID";
-
-    protected static final class AuditData {
-        Path path;
-        String pre;
-        String post;
-    }
 
     @Override
     public String getName() {
         return HOOK_NAME;
     }
 
-    protected Map<Path, AuditData> findAuditsFor(EntityMetadata md, HookConfiguration cfg, HookDoc processedDocument) {
+    protected Audit findAuditFor(EntityMetadata md, HookConfiguration cfg, HookDoc processedDocument) {
+        Audit audit = new Audit();
+
         // find if each field changed
         JsonNodeCursor preCursor = processedDocument.getPreDoc().cursor();
         JsonNodeCursor postCursor = processedDocument.getPostDoc().cursor();
-
-        // record to hold changes
-        Map<Path, AuditData> audits = new HashMap<>();
 
         while (preCursor.next()) {
             Path path = preCursor.getCurrentPath();
@@ -61,10 +66,10 @@ public class AuditHook implements CRUDHook {
                         || (preValue == null && postValue != null)) {
                     // something changed! audit it..
                     AuditData ad = new AuditData();
-                    ad.path = path;
-                    ad.pre = preValue;
-                    ad.post = postValue;
-                    audits.put(path, ad);
+                    ad.setFieldText(path);
+                    ad.setOldValue(preValue);
+                    ad.setNewValue(postValue);
+                    audit.addData(path, ad);
                 }
             }
             // else continue processing
@@ -75,7 +80,7 @@ public class AuditHook implements CRUDHook {
             JsonNode node = postCursor.getCurrentNode();
 
             // shortcut, don't check if we have an audit for the path already
-            if (!audits.containsKey(path) && node.isValueNode()) {
+            if (!audit.getData().containsKey(path) && node.isValueNode()) {
                 // non-container node, check if it changed
                 JsonNode preNode = processedDocument.getPreDoc().get(path);
                 String preValue = preNode == null ? null : preNode.asText();
@@ -85,16 +90,54 @@ public class AuditHook implements CRUDHook {
                         || (preValue == null && postValue != null)) {
                     // something changed! audit it..
                     AuditData ad = new AuditData();
-                    ad.path = path;
-                    ad.pre = preValue;
-                    ad.post = postValue;
-                    audits.put(path, ad);
+                    ad.setFieldText(path);
+                    ad.setOldValue(preValue);
+                    ad.setNewValue(postValue);
+                    audit.addData(path, ad);
                 }
             }
             // else continue processing
         }
 
-        return audits;
+        // if there is nothing to audit, return null (meaning nothing to audit)
+        if (audit.getData().isEmpty()) {
+            return null;
+        }
+
+        // simple optimization, set other fields on audit only if there is data
+        // set top level things like last update who/when
+        audit.setEntityName(processedDocument.getEntityMetadata().getName());
+        audit.setVersionText(processedDocument.getEntityMetadata().getVersion().getValue());
+        audit.setLastUpdateDate(DateType.getDateFormat().format(processedDocument.getWhen()));
+        audit.setLastUpdatedBy(processedDocument.getWho());
+
+        // attempt to get set of fields that identify the document from:
+        //  1) pre doc
+        //  2) post doc
+        // if not found, fail.. need identity to audit!
+        for (Field f : processedDocument.getEntityMetadata().getEntitySchema().getIdentityFields()) {
+            Path p = f.getFullPath();
+
+            // pre doc?
+            JsonNode node = processedDocument.getPreDoc().get(p);
+
+            if (node == null && processedDocument.getPostDoc() != null) {
+                // post doc?
+                node = processedDocument.getPostDoc().get(p);
+            }
+
+            if (node == null) {
+                // unable to find a path for identity, fail
+                throw Error.get(ERR_MISSING_ID, "path:" + p.toString());
+            }
+
+            AuditIdentity identity = new AuditIdentity();
+            identity.setFieldText(p.toString());
+            identity.setValueText(node.asText());
+            audit.addIdentity(identity);
+        }
+
+        return audit;
     }
 
     @Override
@@ -110,66 +153,56 @@ public class AuditHook implements CRUDHook {
 
             // for each processed document
             for (HookDoc hd : processedDocuments) {
-                Map<Path, AuditData> audits = findAuditsFor(md, cfg, hd);
+                Audit audit = findAuditFor(md, cfg, hd);
 
                 // if there's nothing to audit, stop
-                if (audits.isEmpty()) {
+                if (audit == null || audit.getData().isEmpty()) {
                     return;
                 }
 
-                List<JsonNode> identifyingNodes = new ArrayList<>();
+                /*
+                 Structure is noted here as one builder is created for all of this
+                 - common bits: http://docs.lightblue.io/language_specification/data.html#common-request
+                 --- specifically: entity, entityVersion
+                 - insert bits: http://docs.lightblue.io/language_specification/data.html#insert
+                 --- specifically: audit toString
+                 */
+                StringBuilder buff = new StringBuilder();
+                // common bits: (note, includes starting { for first data element and _id field name and first paren for value)
+                // note that entity (name) is for audit, not the audited entity
+                buff.append(String.format("{\"entity\":\"%s\",\"data\":[%s]}",
+                        "audit",
+                        audit.toString()));
 
-                if (!audits.isEmpty()) {
-                    String when = DateType.toString(hd.getWhen());
-
-                    // attempt to get set of fields that identify the document from:
-                    //  1) pre doc
-                    //  2) post doc
-                    // if not found, fail.. need identity to audit!
-                    for (Field f : hd.getEntityMetadata().getEntitySchema().getIdentityFields()) {
-                        Path p = f.getFullPath();
-
-                        // pre doc?
-                        JsonNode node = hd.getPreDoc().get(p);
-
-                        if (node == null && hd.getPostDoc() != null) {
-                            // post doc?
-                            node = hd.getPostDoc().get(p);
+                // All data prepared, do the insert!
+                try {
+                    // create insert request
+                    InsertionRequest ireq = InsertionRequest.fromJson((ObjectNode) JsonUtils.json(buff.toString()));
+                    // add client identifier bits
+                    ireq.setClientId(new ClientIdentification() {
+                        @Override
+                        public boolean isUserInRole(String role) {
+                            // audit hook is only doing insert and must always be allowed to do insert.
+                            return true;
                         }
 
-                        if (node == null) {
-                            // unable to find a path for identity, fail
-                            throw Error.get(ERR_MISSING_ID, "path:" + p.toString());
+                        @Override
+                        public String getPrincipal() {
+                            return HOOK_NAME;
                         }
-
-                        identifyingNodes.add(node);
+                    });
+                    // issue insert against crud mediator
+                    Response r = getFactory().getMediator().insert(ireq);
+                    if (!r.getErrors().isEmpty()) {
+                        // there are errors.  there is nowhere to return errors so just log them for now
+                        for (Error e : r.getErrors()) {
+                            LOGGER.error(e.toString());
+                        }
                     }
-
-                    // build key for identity
-                    StringBuilder identityString = new StringBuilder();
-                    for (JsonNode node : identifyingNodes) {
-                        identityString.append(node.asText()).append("|");
-                    }
-                    // NOTE: for simplicity I'm going to leave the trailing pipe (|) to simplify this
-
-                    // see metadata/audit.json for structure
-                    StringBuilder buff = new StringBuilder(String.format("{\"_id\" : \"%s|%s\",\"audits\":[", hd.getEntityMetadata().getName(), identityString.toString()));
-
-                    // audit those that did change
-                    for (Entry<Path, AuditData> e : audits.entrySet()) {
-                        Path p = e.getKey();
-                        AuditData ad = e.getValue();
-
-                        buff.append(String.format("{\"field\":\"%s\",\"value\":\"%s\",\"when\":\"%s\"},", ad.path.toString(), ad.post, when));
-                    }
-
-                    // trim last char, it's going to be tailing ','
-                    buff.replace(buff.length() - 1, buff.length(), "");
-
-                    // and close it
-                    buff.append("]}");
-
-                    // TODO do something with this...
+                } catch (Error e) {
+                    LOGGER.error("insert failure: {}", e);
+                } catch (Exception e) {
+                    LOGGER.error("insert failure: {}", e);
                 }
             }
         } finally {
@@ -177,4 +210,23 @@ public class AuditHook implements CRUDHook {
             Error.pop();
         }
     }
+
+    private static LightblueFactory factory;
+
+    protected static LightblueFactory getFactory() {
+        return factory;
+    }
+
+    static {
+        // a striped down version of what is in lightblue-rest/config class RestConfiguration
+        DataSourcesConfiguration datasources = null;
+
+        try {
+            datasources = new DataSourcesConfiguration(JsonUtils.json(Thread.currentThread().getContextClassLoader().getResourceAsStream("datasources.json")));
+        } catch (Exception e) {
+            throw new RuntimeException("Cannot initialize datasources.", e);
+        }
+        factory = new LightblueFactory(datasources);
+    }
+
 }

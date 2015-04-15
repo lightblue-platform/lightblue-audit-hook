@@ -23,7 +23,7 @@
         ],
         "datastore": {
             "backend": "mongo",
-            "datasource": "mongodata",
+            "datasource": "mongo",
             "collection": "country"
         }
     },

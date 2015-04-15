@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.fge.jsonschema.main.JsonSchema;
+import com.mongodb.DBCollection;
 import com.redhat.lightblue.crud.Operation;
 import com.redhat.lightblue.hooks.HookDoc;
 import com.redhat.lightblue.metadata.EntityMetadata;
@@ -27,6 +28,7 @@ import org.junit.Test;
  */
 public class AuditHookTest extends AbstractHookTest {
     protected static final String AUDIT_METADATA_FILENAME = "metadata/audit.json";
+    protected static final String FOO_METADATA_FILENAME = "metadata/foo.json";
 
     /**
      * Verify the audit metadata conforms to metadata schema.
@@ -81,14 +83,16 @@ public class AuditHookTest extends AbstractHookTest {
      */
     @Test
     public void updateWithId() throws Exception {
-        // load
-        String jsonSchemaString = FileUtil.readFile(AUDIT_METADATA_FILENAME);
+        // verify up front there is nothing in audit collection
+        DBCollection auditColl = mongo.getDB().createCollection("audit", null);
+        Assert.assertEquals(0, auditColl.find().count());
+        
+        // parse audit and foo metadata
+        EntityMetadata auditMetadata = parser.parseEntityMetadata(json(FileUtil.readFile(AUDIT_METADATA_FILENAME)));
+        EntityMetadata fooMetadata  = parser.parseEntityMetadata(json(FileUtil.readFile(FOO_METADATA_FILENAME)));
 
-        // parser
-        EntityMetadata em = parser.parseEntityMetadata(json(jsonSchemaString));
-
-        // create hook configuration
-        AuditHookConfiguration config = new AuditHookConfiguration("test", "1.0.0");
+        // create audit hook configuration
+        AuditHookConfiguration config = new AuditHookConfiguration("foo", "0.1.0-SNAPSHOT");
 
         // ------------------------------------------------------------
         // mock up document data
@@ -109,7 +113,8 @@ public class AuditHookTest extends AbstractHookTest {
         pre.put("bar", "same");
         post.put("bar", "same");
 
-        HookDoc hd = new HookDoc(em, new JsonDoc(pre), new JsonDoc(post), Operation.UPDATE);
+        // important, metadata on hook doc is the entity metadata (foo), not audit metadata
+        HookDoc hd = new HookDoc(fooMetadata, new JsonDoc(pre), new JsonDoc(post), Operation.UPDATE);
 
         processedDocuments.add(hd);
         // ------------------------------------------------------------
@@ -118,6 +123,15 @@ public class AuditHookTest extends AbstractHookTest {
         AuditHook hook = new AuditHook();
 
         // process hook
-        hook.processHook(em, config, processedDocuments);
+        hook.processHook(auditMetadata, config, processedDocuments);
+        
+        // verify there's one audit in database
+        // verify up front there is nothing in audit collection
+        Assert.assertEquals(1, auditColl.find().count());
+    }
+
+    @Override
+    protected String[] getMetadataResources() {
+        return new String[]{"metadata/audit.json","metadata/foo.json"};
     }
 }
