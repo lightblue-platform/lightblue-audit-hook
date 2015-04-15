@@ -23,6 +23,8 @@ import org.junit.BeforeClass;
 
 import org.junit.After;
 
+import java.util.Objects;
+
 /**
  * Abstract hook test assuming use of mongo backend and metadata for test as
  * resource(s) on classpath.
@@ -55,7 +57,7 @@ public abstract class AbstractHookTest {
         Extensions<JsonNode> ex = new Extensions<>();
         ex.addDefaultExtensions();
         hookParser = new AuditHookConfigurationParser();
-        ex.registerHookConfigurationParser(AuditHook.HOOK_NAME, hookParser);
+        ex.registerHookConfigurationParser(AuditHook.HOOK_NAME, hookParser);// The generics mechanism for hookParser variable would be based on JsonNode due Extensions<JsonNode> ex
         ex.registerDataStoreParser(DATASTORE_BACKEND, new MongoDataStoreParser());
         parser = new JSONMetadataParser(ex, new DefaultTypes(), NODE_FACTORY);
     }

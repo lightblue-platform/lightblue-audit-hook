@@ -10,7 +10,7 @@ import com.redhat.lightblue.metadata.parser.MetadataParser;
  *
  * @author nmalik
  */
-public class AuditHookConfigurationParser implements HookConfigurationParser<JsonNode> {
+public class AuditHookConfigurationParser<T> implements HookConfigurationParser<T> {
     public static final String PROPERTY_ENTITY_NAME = "entityName";
     public static final String PROPERTY_VERSION = "version";
 
@@ -20,7 +20,7 @@ public class AuditHookConfigurationParser implements HookConfigurationParser<Jso
     }
 
     @Override
-    public HookConfiguration parse(String name, MetadataParser<JsonNode> p, JsonNode node) {
+    public HookConfiguration parse(String name, MetadataParser<T> p, T node) {
         // note: name is the hook name (comes from generic Parser interface)
         String entityName = p.getRequiredStringProperty(node, PROPERTY_ENTITY_NAME);
         String version = p.getRequiredStringProperty(node, PROPERTY_VERSION);
@@ -29,7 +29,7 @@ public class AuditHookConfigurationParser implements HookConfigurationParser<Jso
     }
 
     @Override
-    public void convert(MetadataParser<JsonNode> p, JsonNode emptyNode, HookConfiguration object) {
+    public void convert(MetadataParser<T> p, T emptyNode, HookConfiguration object) {
         if (object instanceof AuditHookConfiguration) {
             AuditHookConfiguration ahc = (AuditHookConfiguration) object;
             p.putValue(emptyNode, PROPERTY_ENTITY_NAME, ahc.getEntityName());
