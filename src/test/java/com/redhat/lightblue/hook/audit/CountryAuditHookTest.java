@@ -6,7 +6,7 @@ import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-import com.redhat.lightblue.crud.Operation;
+import com.redhat.lightblue.crud.CRUDOperation;
 import com.redhat.lightblue.hook.audit.model.Audit;
 import com.redhat.lightblue.hooks.HookDoc;
 import com.redhat.lightblue.metadata.EntityMetadata;
@@ -106,7 +106,7 @@ public class CountryAuditHookTest extends AbstractHookTest {
         JsonNode pre = json(FileUtil.readFile(getClass().getSimpleName() + "-missingOneIdentifyingField-pre.json"));
         JsonNode post = json(FileUtil.readFile(getClass().getSimpleName() + "-missingOneIdentifyingField-post.json"));
 
-        HookDoc hd = new HookDoc(em, new JsonDoc(pre), new JsonDoc(post), Operation.UPDATE);
+        HookDoc hd = new HookDoc(em, new JsonDoc(pre), new JsonDoc(post), CRUDOperation.UPDATE);
 
         processedDocuments.add(hd);
         // ------------------------------------------------------------
@@ -144,7 +144,7 @@ public class CountryAuditHookTest extends AbstractHookTest {
         JsonNode pre = json(FileUtil.readFile(getClass().getSimpleName() + "-missingAllIdentifyingFields-pre.json"));
         JsonNode post = json(FileUtil.readFile(getClass().getSimpleName() + "-missingAllIdentifyingFields-post.json"));
 
-        HookDoc hd = new HookDoc(em, new JsonDoc(pre), new JsonDoc(post), Operation.UPDATE);
+        HookDoc hd = new HookDoc(em, new JsonDoc(pre), new JsonDoc(post), CRUDOperation.UPDATE);
 
         processedDocuments.add(hd);
         // ------------------------------------------------------------
@@ -186,7 +186,7 @@ public class CountryAuditHookTest extends AbstractHookTest {
         JsonNode pre = json(FileUtil.readFile(getClass().getSimpleName() + "-noMissingIdentifyingFields-pre.json"));
         JsonNode post = json(FileUtil.readFile(getClass().getSimpleName() + "-noMissingIdentifyingFields-post.json"));
 
-        HookDoc hd = new HookDoc(em, new JsonDoc(pre), new JsonDoc(post), Operation.UPDATE);
+        HookDoc hd = new HookDoc(em, new JsonDoc(pre), new JsonDoc(post), CRUDOperation.UPDATE);
 
         processedDocuments.add(hd);
         // ------------------------------------------------------------
@@ -227,7 +227,7 @@ public class CountryAuditHookTest extends AbstractHookTest {
         JsonNode pre = json(FileUtil.readFile(getClass().getSimpleName() + "-differentPreAndPost-pre.json"));
         JsonNode post = json(FileUtil.readFile(getClass().getSimpleName() + "-differentPreAndPost-post.json"));
 
-        HookDoc hd = new HookDoc(em, new JsonDoc(pre), new JsonDoc(post), Operation.UPDATE);
+        HookDoc hd = new HookDoc(em, new JsonDoc(pre), new JsonDoc(post), CRUDOperation.UPDATE);
 
         processedDocuments.add(hd);
         // ------------------------------------------------------------
@@ -276,7 +276,7 @@ public class CountryAuditHookTest extends AbstractHookTest {
         JsonNode pre = json(FileUtil.readFile(getClass().getSimpleName() + "-nothingToAudit-pre.json"));
         JsonNode post = json(FileUtil.readFile(getClass().getSimpleName() + "-nothingToAudit-post.json"));
 
-        HookDoc hd = new HookDoc(em, new JsonDoc(pre), new JsonDoc(post), Operation.UPDATE);
+        HookDoc hd = new HookDoc(em, new JsonDoc(pre), new JsonDoc(post), CRUDOperation.UPDATE);
 
         processedDocuments.add(hd);
         // ------------------------------------------------------------
