@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.fge.jsonschema.main.JsonSchema;
 import com.mongodb.DBCollection;
-import com.redhat.lightblue.crud.Operation;
+import com.redhat.lightblue.crud.CRUDOperation;
 import com.redhat.lightblue.hooks.HookDoc;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.util.JsonDoc;
@@ -114,7 +114,7 @@ public class AuditHookTest extends AbstractHookTest {
         post.put("bar", "same");
 
         // important, metadata on hook doc is the entity metadata (foo), not audit metadata
-        HookDoc hd = new HookDoc(fooMetadata, new JsonDoc(pre), new JsonDoc(post), Operation.UPDATE);
+        HookDoc hd = new HookDoc(fooMetadata, new JsonDoc(pre), new JsonDoc(post), CRUDOperation.UPDATE);
 
         processedDocuments.add(hd);
         // ------------------------------------------------------------

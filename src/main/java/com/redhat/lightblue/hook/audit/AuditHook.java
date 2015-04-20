@@ -6,8 +6,8 @@ import com.redhat.lightblue.ClientIdentification;
 import com.redhat.lightblue.Response;
 import com.redhat.lightblue.config.DataSourcesConfiguration;
 import com.redhat.lightblue.config.LightblueFactory;
+import com.redhat.lightblue.crud.CRUDOperation;
 import com.redhat.lightblue.crud.InsertionRequest;
-import com.redhat.lightblue.crud.Operation;
 import com.redhat.lightblue.hook.audit.model.Audit;
 import com.redhat.lightblue.hook.audit.model.AuditData;
 import com.redhat.lightblue.hook.audit.model.AuditIdentity;
@@ -60,7 +60,7 @@ public class AuditHook implements CRUDHook {
                 String preValue = node.asText();
                 // if operation is delete, post value doesn't exist.
                 JsonNode postNode = processedDocument.getPostDoc().get(path);
-                String postValue = processedDocument.getOperation() == Operation.DELETE || postNode == null ? null : postNode.asText();
+                String postValue = processedDocument.getCRUDOperation() == CRUDOperation.DELETE || postNode == null ? null : postNode.asText();
 
                 if ((preValue != null && !preValue.equals(postValue))
                         || (preValue == null && postValue != null)) {
