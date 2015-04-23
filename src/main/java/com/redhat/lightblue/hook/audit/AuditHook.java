@@ -46,57 +46,77 @@ public class AuditHook implements CRUDHook {
 
     protected Audit findAuditFor(EntityMetadata md, HookConfiguration cfg, HookDoc processedDocument) {
         Audit audit = new Audit();
+        JsonNodeCursor preCursor = null;
+        JsonNodeCursor postCursor = null;
 
         // find if each field changed
-        JsonNodeCursor preCursor = processedDocument.getPreDoc().cursor();
-        JsonNodeCursor postCursor = processedDocument.getPostDoc().cursor();
 
-        while (preCursor.next()) {
-            Path path = preCursor.getCurrentPath();
-            JsonNode node = preCursor.getCurrentNode();
-
-            if (node.isValueNode()) {
-                // non-container node, check if it changed
-                String preValue = node.asText();
-                // if operation is delete, post value doesn't exist.
-                JsonNode postNode = processedDocument.getPostDoc().get(path);
-                String postValue = processedDocument.getCRUDOperation() == CRUDOperation.DELETE || postNode == null ? null : postNode.asText();
-
-                if ((preValue != null && !preValue.equals(postValue))
-                        || (preValue == null && postValue != null)) {
-                    // something changed! audit it..
-                    AuditData ad = new AuditData();
-                    ad.setFieldText(path);
-                    ad.setOldValue(preValue);
-                    ad.setNewValue(postValue);
-                    audit.addData(path, ad);
-                }
-            }
-            // else continue processing
+        //  for CRUDOperation.INSERT && CRUDOperation.FIND,  preCursor is null
+        if(processedDocument.getPreDoc() != null) {
+            preCursor = processedDocument.getPreDoc().cursor();
+        }
+        // for  CRUDOperation.DELETE, postCursor is null
+        if(processedDocument.getPostDoc() != null) {
+            postCursor = processedDocument.getPostDoc().cursor();
         }
 
-        while (postCursor.next()) {
-            Path path = postCursor.getCurrentPath();
-            JsonNode node = postCursor.getCurrentNode();
+        if(preCursor != null) {
+            while (preCursor.next()) {
+                Path path = preCursor.getCurrentPath();
+                JsonNode node = preCursor.getCurrentNode();
 
-            // shortcut, don't check if we have an audit for the path already
-            if (!audit.getData().containsKey(path) && node.isValueNode()) {
-                // non-container node, check if it changed
-                JsonNode preNode = processedDocument.getPreDoc().get(path);
-                String preValue = preNode == null ? null : preNode.asText();
-                String postValue = node.asText();
+                if (node.isValueNode()) {
+                    // non-container node, check if it changed
+                    String preValue = node.asText();
+                    String postValue = null;
+                    if(processedDocument.getPostDoc() != null) {
+                        // if operation is delete, post value doesn't exist.
+                        JsonNode postNode = processedDocument.getPostDoc().get(path);
+                        postValue = processedDocument.getCRUDOperation() == CRUDOperation.DELETE || postNode == null ? null : postNode.asText();
+                    }
 
-                if ((preValue != null && !preValue.equals(postValue))
-                        || (preValue == null && postValue != null)) {
-                    // something changed! audit it..
-                    AuditData ad = new AuditData();
-                    ad.setFieldText(path);
-                    ad.setOldValue(preValue);
-                    ad.setNewValue(postValue);
-                    audit.addData(path, ad);
+                    if ((preValue != null && !preValue.equals(postValue))
+                            || (preValue == null && postValue != null)) {
+                        // something changed! audit it..
+                        AuditData ad = new AuditData();
+                        ad.setFieldText(path);
+                        ad.setOldValue(preValue);
+                        ad.setNewValue(postValue);
+                        audit.addData(path, ad);
+                    }
                 }
+                // else continue processing
             }
-            // else continue processing
+        }
+
+        if(postCursor != null) {
+            while (postCursor.next()) {
+                Path path = postCursor.getCurrentPath();
+                JsonNode node = postCursor.getCurrentNode();
+
+                // shortcut, don't check if we have an audit for the path already
+                if (!audit.getData().containsKey(path) && node.isValueNode()) {
+
+                    String preValue = null;
+                    if(processedDocument.getPreDoc() != null) {
+                        // non-container node, check if it changed
+                        JsonNode preNode = processedDocument.getPreDoc().get(path);
+                        preValue = preNode == null ? null : preNode.asText();
+                    }
+                    String postValue = node.asText();
+
+                    if ((preValue != null && !preValue.equals(postValue))
+                            || (preValue == null && postValue != null)) {
+                        // something changed! audit it..
+                        AuditData ad = new AuditData();
+                        ad.setFieldText(path);
+                        ad.setOldValue(preValue);
+                        ad.setNewValue(postValue);
+                        audit.addData(path, ad);
+                    }
+                }
+                // else continue processing
+            }
         }
 
         // if there is nothing to audit, return null (meaning nothing to audit)
@@ -117,9 +137,11 @@ public class AuditHook implements CRUDHook {
         // if not found, fail.. need identity to audit!
         for (Field f : processedDocument.getEntityMetadata().getEntitySchema().getIdentityFields()) {
             Path p = f.getFullPath();
-
-            // pre doc?
-            JsonNode node = processedDocument.getPreDoc().get(p);
+            JsonNode node = null;
+                    // pre doc?
+            if(processedDocument.getPreDoc() != null){
+                node = processedDocument.getPreDoc().get(p);
+            }
 
             if (node == null && processedDocument.getPostDoc() != null) {
                 // post doc?
@@ -200,11 +222,17 @@ public class AuditHook implements CRUDHook {
                         }
                     }
                 } catch (Error e) {
-                    LOGGER.error("insert failure: {}", e);
+                    LOGGER.error("insert error: {}", e);
                 } catch (Exception e) {
-                    LOGGER.error("insert failure: {}", e);
+                    LOGGER.error("insert exception: {}", e);
                 }
             }
+        } catch (Error e) {
+            LOGGER.error("audit error: {}", e);
+            throw e;
+        } catch (Exception e) {
+            LOGGER.error("audit exception: {}", e);
+            throw e;
         } finally {
             Error.pop();
             Error.pop();
