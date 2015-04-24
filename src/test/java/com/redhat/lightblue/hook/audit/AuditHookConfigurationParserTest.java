@@ -1,15 +1,18 @@
 package com.redhat.lightblue.hook.audit;
 
+import static com.redhat.lightblue.util.JsonUtils.json;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.redhat.lightblue.metadata.EntityInfo;
 import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.util.Error;
-import static com.redhat.lightblue.util.JsonUtils.json;
 import com.redhat.lightblue.util.test.FileUtil;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import org.junit.Assert;
-import org.junit.Test;
 
 public class AuditHookConfigurationParserTest extends AbstractHookTest {
 
@@ -91,7 +94,7 @@ public class AuditHookConfigurationParserTest extends AbstractHookTest {
     public void parse() throws IOException, URISyntaxException {
         String jsonString = "{\"entityName\":\"audit\",\"version\":\"1.0.0\"}";
 
-        AuditHookConfigurationParser p = new AuditHookConfigurationParser();
+        AuditHookConfigurationParser<JsonNode> p = new AuditHookConfigurationParser<JsonNode>();
 
         AuditHookConfiguration config = (AuditHookConfiguration) p.parse("audit", parser, json(jsonString));
 
@@ -103,7 +106,7 @@ public class AuditHookConfigurationParserTest extends AbstractHookTest {
     public void convert() throws IOException, URISyntaxException {
         String jsonString = "{\"entityName\":\"audit\",\"version\":\"1.0.0\"}";
 
-        AuditHookConfigurationParser p = new AuditHookConfigurationParser();
+        AuditHookConfigurationParser<JsonNode> p = new AuditHookConfigurationParser<JsonNode>();
 
         AuditHookConfiguration config = (AuditHookConfiguration) p.parse("audit", parser, json(jsonString));
 
