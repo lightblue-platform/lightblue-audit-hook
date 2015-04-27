@@ -16,3 +16,7 @@ hs_err_pid*
 /target/
 rhc-port-forward-status
 etc/rhc-port-forward-status
+
+.classpath
+.project
+.settings/
