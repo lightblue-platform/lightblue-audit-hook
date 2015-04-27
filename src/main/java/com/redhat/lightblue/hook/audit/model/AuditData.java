@@ -1,6 +1,7 @@
 package com.redhat.lightblue.hook.audit.model;
 
 import com.redhat.lightblue.util.Path;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 /**
  * @author nmalik
@@ -60,7 +61,9 @@ public class AuditData {
      */
     private void toString(StringBuilder buff, String name, Object value) {
         if (name != null && !name.isEmpty() && value != null && !value.toString().isEmpty()) {
-            buff.append(String.format("\"%s\":\"%s\",", name, value.toString()));
+            String escapeJsonName = StringEscapeUtils.escapeJson(name.toString());
+            String escapeJsonValue = StringEscapeUtils.escapeJson(value.toString());
+            buff.append(String.format("\"%s\":\"%s\",", escapeJsonName, escapeJsonValue));
         }
     }
 }

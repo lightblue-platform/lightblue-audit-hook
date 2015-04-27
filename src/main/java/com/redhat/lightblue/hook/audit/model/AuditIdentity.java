@@ -1,5 +1,7 @@
 package com.redhat.lightblue.hook.audit.model;
 
+import org.apache.commons.lang3.StringEscapeUtils;
+
 /**
  * @author nmalik
  */
@@ -28,8 +30,10 @@ public class AuditIdentity {
         StringBuilder buff = new StringBuilder("{");
 
         // both fields are required, will simply add them
-        buff.append("\"fieldText\":\"").append(getFieldText()).append("\",");
-        buff.append("\"valueText\":\"").append(getValueText()).append("\"");
+        String escapeJsonField = StringEscapeUtils.escapeJson(getFieldText().toString());
+        String escapeJsonValue = StringEscapeUtils.escapeJson(getValueText().toString());
+        buff.append("\"fieldText\":\"").append(escapeJsonField).append("\",");
+        buff.append("\"valueText\":\"").append(escapeJsonValue).append("\"");
 
         buff.append("}");
 

@@ -107,7 +107,7 @@ public class AuditHookTest extends AbstractHookTest {
 
         // will have a field "foo" on each with different values
         pre.put("foo", "old");
-        post.put("foo", "new");
+        post.put("foo", "new\"value\\");
 
         // and field "bar" with same values
         pre.put("bar", "same");
