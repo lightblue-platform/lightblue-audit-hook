@@ -1,5 +1,8 @@
 package com.redhat.lightblue.hook.audit.model;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.util.Path;
 import org.apache.commons.lang3.StringEscapeUtils;
 
@@ -81,56 +84,38 @@ public class Audit {
     }
 
 
-    @Override
-    public String toString() {
-        StringBuilder buff = new StringBuilder("{");
 
-        toString(buff, "entityName", getEntityName());
-        toString(buff, "versionText", getVersionText());
-        toString(buff, "lastUpdateDate", getLastUpdateDate());
-        toString(buff, "lastUpdatedBy", getLastUpdatedBy());
-
-        // remove trailing comma
-        buff.deleteCharAt(buff.length() - 1);
+    public ObjectNode toJSON() {
+        ObjectNode jsonNode = new ObjectNode(JsonNodeFactory.instance);
+        toJSON(jsonNode, "entityName", getEntityName());
+        toJSON(jsonNode, "versionText", getVersionText());
+        toJSON(jsonNode, "lastUpdateDate", getLastUpdateDate());
+        toJSON(jsonNode, "lastUpdatedBy", getLastUpdatedBy());
 
         if (identity != null && !identity.isEmpty()) {
-            buff.append(",\"identity\":[");
+            ArrayNode arrayJsonNode = jsonNode.putArray("identity");
             for (AuditIdentity i : identity) {
-                buff.append(i.toString()).append(",");
+                ObjectNode identityNode = new ObjectNode(JsonNodeFactory.instance);
+                i.toJSON(identityNode);
+                arrayJsonNode.add(identityNode);
             }
-            // remove trailing comma
-            buff.deleteCharAt(buff.length() - 1);
-            buff.append("]");
         }
 
         if (data != null && !data.isEmpty()) {
-            buff.append(",\"audits\":[");
+            ArrayNode arrayJsonNode = jsonNode.putArray("audits");
             for (AuditData d : data.values()) {
-                buff.append(d.toString()).append(",");
+                ObjectNode dataNode = new ObjectNode(JsonNodeFactory.instance);
+                d.toJSON(dataNode);
+                arrayJsonNode.add(dataNode);
             }
-            // remove trailing comma
-            buff.deleteCharAt(buff.length() - 1);
-            buff.append("]");
         }
 
-        buff.append("}");
-
-        return buff.toString();
+        return jsonNode;
     }
 
-    /**
-     * If name or value is empty does nothing, else adds to the buffer. Note,
-     * always adds trailing comma! Strip it off if you don't want it.
-     *
-     * @param buff  builder to add the text to
-     * @param name  name of field
-     * @param value value of field
-     */
-    private void toString(StringBuilder buff, String name, Object value) {
-        if (name != null && !name.isEmpty() && value != null && !value.toString().isEmpty()) {
-            String escapeJsonName = StringEscapeUtils.escapeJson(name.toString());
-            String escapeJsonValue = StringEscapeUtils.escapeJson(value.toString());
-            buff.append(String.format("\"%s\":\"%s\",", escapeJsonName, escapeJsonValue));
+    private void toJSON(ObjectNode jsonNode, String name, String value) {
+        if (name != null && !name.isEmpty() && value != null && !value.isEmpty()) {
+            jsonNode.put(name, value);
         }
     }
 }

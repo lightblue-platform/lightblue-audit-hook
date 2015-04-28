@@ -1,6 +1,8 @@
 package com.redhat.lightblue.hook.audit;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.ClientIdentification;
 import com.redhat.lightblue.Response;
@@ -189,17 +191,17 @@ public class AuditHook implements CRUDHook {
                  - insert bits: http://docs.lightblue.io/language_specification/data.html#insert
                  --- specifically: audit toString
                  */
-                StringBuilder buff = new StringBuilder();
                 // common bits: (note, includes starting { for first data element and _id field name and first paren for value)
                 // note that entity (name) is for audit, not the audited entity
-                buff.append(String.format("{\"entity\":\"%s\",\"data\":[%s]}",
-                        "audit",
-                        audit.toString()));
+                ObjectNode jsonNode = new ObjectNode(JsonNodeFactory.instance);
+                jsonNode.put("entity", "audit");
+                ArrayNode data = jsonNode.putArray("data");
+                data.add(audit.toJSON());
 
                 // All data prepared, do the insert!
                 try {
                     // create insert request
-                    InsertionRequest ireq = InsertionRequest.fromJson((ObjectNode) JsonUtils.json(buff.toString()));
+                    InsertionRequest ireq = InsertionRequest.fromJson(jsonNode);
                     // add client identifier bits
                     ireq.setClientId(new ClientIdentification() {
                         @Override
