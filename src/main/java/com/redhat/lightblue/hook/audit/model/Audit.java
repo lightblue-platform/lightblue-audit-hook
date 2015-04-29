@@ -19,6 +19,7 @@ public class Audit {
     private String versionText;
     private String lastUpdateDate;
     private String lastUpdatedBy;
+    private String CRUDOperation;
     private final List<AuditIdentity> identity = new ArrayList<>();
     private final Map<Path, AuditData> data = new HashMap<>();
 
@@ -91,6 +92,7 @@ public class Audit {
         toJSON(jsonNode, "versionText", getVersionText());
         toJSON(jsonNode, "lastUpdateDate", getLastUpdateDate());
         toJSON(jsonNode, "lastUpdatedBy", getLastUpdatedBy());
+        toJSON(jsonNode, "CRUDOperation", getCRUDOperation());
 
         if (identity != null && !identity.isEmpty()) {
             ArrayNode arrayJsonNode = jsonNode.putArray("identity");
@@ -117,5 +119,13 @@ public class Audit {
         if (name != null && !name.isEmpty() && value != null && !value.isEmpty()) {
             jsonNode.put(name, value);
         }
+    }
+
+    public void setCRUDOperation(String CRUDOperation) {
+        this.CRUDOperation = CRUDOperation;
+    }
+
+    public String getCRUDOperation() {
+        return CRUDOperation;
     }
 }

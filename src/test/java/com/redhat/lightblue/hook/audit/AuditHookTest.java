@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.fge.jsonschema.main.JsonSchema;
 import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
 import com.redhat.lightblue.crud.CRUDOperation;
 import com.redhat.lightblue.hooks.HookDoc;
 import com.redhat.lightblue.metadata.EntityMetadata;
@@ -127,7 +128,9 @@ public class AuditHookTest extends AbstractHookTest {
         
         // verify there's one audit in database
         // verify up front there is nothing in audit collection
-        Assert.assertEquals(1, auditColl.find().count());
+        DBCursor dbObjects = auditColl.find();
+        Assert.assertEquals(1, dbObjects.count());
+        System.out.println(dbObjects.next());
     }
 
     @Override
