@@ -1,7 +1,7 @@
 {
     "entityInfo": {
         "name": "audit",
-        "defaultVersion": "1.0.0",
+        "defaultVersion": "1.0.1",
         "datastore": {
             "backend": "mongo",
             "datasource": "mongo",
@@ -11,8 +11,8 @@
     "schema": {
         "name": "audit",
         "version": {
-            "value": "1.0.0",
-            "changelog": "Initial version"
+            "value": "1.0.1",
+            "changelog": "add CRUDOperation field"
         },
         "status": {
             "value": "active"
