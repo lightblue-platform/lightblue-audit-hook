@@ -49,6 +49,10 @@
                 "type": "string",
                 "description": "Who changed the field."
             },
+            "CRUDOperation": {
+                "type": "string",
+                "description": "The operation executed to change the field."
+            },
             "identity": {
                 "type": "array",
                 "description": "The fields that identify the audited document",
