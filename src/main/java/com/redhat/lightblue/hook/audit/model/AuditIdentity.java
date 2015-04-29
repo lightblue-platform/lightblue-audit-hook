@@ -1,5 +1,6 @@
 package com.redhat.lightblue.hook.audit.model;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 /**
@@ -25,18 +26,8 @@ public class AuditIdentity {
         this.valueText = valueText;
     }
 
-    @Override
-    public String toString() {
-        StringBuilder buff = new StringBuilder("{");
-
-        // both fields are required, will simply add them
-        String escapeJsonField = StringEscapeUtils.escapeJson(getFieldText().toString());
-        String escapeJsonValue = StringEscapeUtils.escapeJson(getValueText().toString());
-        buff.append("\"fieldText\":\"").append(escapeJsonField).append("\",");
-        buff.append("\"valueText\":\"").append(escapeJsonValue).append("\"");
-
-        buff.append("}");
-
-        return buff.toString();
+    public void toJSON(ObjectNode objectNode) {
+        objectNode.put("fieldText",getFieldText());
+        objectNode.put("valueText",getValueText());
     }
 }

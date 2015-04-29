@@ -1,5 +1,6 @@
 package com.redhat.lightblue.hook.audit.model;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.util.Path;
 import org.apache.commons.lang3.StringEscapeUtils;
 
@@ -35,35 +36,15 @@ public class AuditData {
         this.newValue = newValue;
     }
 
-    @Override
-    public String toString() {
-        StringBuilder buff = new StringBuilder("{");
-
-        toString(buff, "fieldText", getFieldText());
-        toString(buff, "oldValue", getOldValue());
-        toString(buff, "newValue", getNewValue());
-
-        // remove trailing comma
-        buff.deleteCharAt(buff.length() - 1);
-
-        buff.append("}");
-
-        return buff.toString();
+    public void toJSON(ObjectNode objectNode) {
+        toJSON(objectNode, "fieldText", getFieldText());
+        toJSON(objectNode, "oldValue", getOldValue());
+        toJSON(objectNode, "newValue", getNewValue());
     }
 
-    /**
-     * If name or value is empty does nothing, else adds to the buffer. Note,
-     * always adds trailing comma! Strip it off if you don't want it.
-     *
-     * @param buff  builder to add the text to
-     * @param name  name of field
-     * @param value value of field
-     */
-    private void toString(StringBuilder buff, String name, Object value) {
+    private void toJSON(ObjectNode jsonNode, String name, Object value) {
         if (name != null && !name.isEmpty() && value != null && !value.toString().isEmpty()) {
-            String escapeJsonName = StringEscapeUtils.escapeJson(name.toString());
-            String escapeJsonValue = StringEscapeUtils.escapeJson(value.toString());
-            buff.append(String.format("\"%s\":\"%s\",", escapeJsonName, escapeJsonValue));
+            jsonNode.put(name, value.toString());
         }
     }
 }
