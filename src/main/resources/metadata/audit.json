@@ -1,7 +1,7 @@
 {
     "entityInfo": {
         "name": "audit",
-        "defaultVersion": "1.0.0",
+        "defaultVersion": "1.0.1",
         "datastore": {
             "backend": "mongo",
             "datasource": "mongo",
@@ -11,8 +11,8 @@
     "schema": {
         "name": "audit",
         "version": {
-            "value": "1.0.0",
-            "changelog": "Initial version"
+            "value": "1.0.1",
+            "changelog": "add CRUDOperation field"
         },
         "status": {
             "value": "active"
@@ -48,6 +48,10 @@
             "lastUpdatedBy": {
                 "type": "string",
                 "description": "Who changed the field."
+            },
+            "CRUDOperation": {
+                "type": "string",
+                "description": "The operation executed to change the field."
             },
             "identity": {
                 "type": "array",
