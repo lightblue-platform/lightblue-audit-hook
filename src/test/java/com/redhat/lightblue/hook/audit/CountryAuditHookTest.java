@@ -1,5 +1,15 @@
 package com.redhat.lightblue.hook.audit;
 
+import static com.redhat.lightblue.util.JsonUtils.json;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.fge.jsonschema.main.JsonSchema;
 import com.mongodb.BasicDBList;
@@ -13,14 +23,7 @@ import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Field;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.JsonUtils;
-import static com.redhat.lightblue.util.JsonUtils.json;
 import com.redhat.lightblue.util.test.FileUtil;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import org.junit.Assert;
-import org.junit.Test;
 
 /**
  * Test AuditHook with country.json.
@@ -192,7 +195,7 @@ public class CountryAuditHookTest extends AbstractHookTest {
         // ------------------------------------------------------------
 
         // create hook
-        AuditHook hook = new AuditHook();
+        AuditHook hook = createAuditHook();
 
         // process hook
         hook.processHook(em, config, processedDocuments);
@@ -233,7 +236,7 @@ public class CountryAuditHookTest extends AbstractHookTest {
         // ------------------------------------------------------------
 
         // create hook
-        AuditHook hook = new AuditHook();
+        AuditHook hook = createAuditHook();
 
         // process hook
         hook.processHook(em, config, processedDocuments);
@@ -246,9 +249,9 @@ public class CountryAuditHookTest extends AbstractHookTest {
 
         Assert.assertFalse(data.isEmpty());
         Assert.assertEquals(1, data.size());
-        
-        Assert.assertEquals("optionalField", ((BasicDBObject)data.get(0)).get("fieldText").toString());
-        Assert.assertEquals("changed", ((BasicDBObject)data.get(0)).get("newValue").toString());
+
+        Assert.assertEquals("optionalField", ((BasicDBObject) data.get(0)).get("fieldText").toString());
+        Assert.assertEquals("changed", ((BasicDBObject) data.get(0)).get("newValue").toString());
     }
 
     /**
@@ -298,6 +301,6 @@ public class CountryAuditHookTest extends AbstractHookTest {
 
     @Override
     protected String[] getMetadataResources() {
-        return new String[]{"metadata/audit.json","metadata/country.json"};
+        return new String[]{"metadata/audit.json", "metadata/country.json"};
     }
 }

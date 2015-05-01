@@ -5,6 +5,14 @@
  */
 package com.redhat.lightblue.hook.audit;
 
+import static com.redhat.lightblue.util.JsonUtils.json;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -16,12 +24,7 @@ import com.redhat.lightblue.hooks.HookDoc;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.JsonUtils;
-import static com.redhat.lightblue.util.JsonUtils.json;
 import com.redhat.lightblue.util.test.FileUtil;
-import java.util.ArrayList;
-import java.util.List;
-import org.junit.Assert;
-import org.junit.Test;
 
 /**
  *
@@ -87,10 +90,10 @@ public class AuditHookTest extends AbstractHookTest {
         // verify up front there is nothing in audit collection
         DBCollection auditColl = mongo.getDB().createCollection("audit", null);
         Assert.assertEquals(0, auditColl.find().count());
-        
+
         // parse audit and foo metadata
         EntityMetadata auditMetadata = parser.parseEntityMetadata(json(FileUtil.readFile(AUDIT_METADATA_FILENAME)));
-        EntityMetadata fooMetadata  = parser.parseEntityMetadata(json(FileUtil.readFile(FOO_METADATA_FILENAME)));
+        EntityMetadata fooMetadata = parser.parseEntityMetadata(json(FileUtil.readFile(FOO_METADATA_FILENAME)));
 
         // create audit hook configuration
         AuditHookConfiguration config = new AuditHookConfiguration("foo", "0.1.0-SNAPSHOT");
@@ -121,11 +124,11 @@ public class AuditHookTest extends AbstractHookTest {
         // ------------------------------------------------------------
 
         // create hook
-        AuditHook hook = new AuditHook();
+        AuditHook hook = createAuditHook();
 
         // process hook
         hook.processHook(auditMetadata, config, processedDocuments);
-        
+
         // verify there's one audit in database
         // verify up front there is nothing in audit collection
         DBCursor dbObjects = auditColl.find();
@@ -135,6 +138,6 @@ public class AuditHookTest extends AbstractHookTest {
 
     @Override
     protected String[] getMetadataResources() {
-        return new String[]{"metadata/audit.json","metadata/foo.json"};
+        return new String[]{"metadata/audit.json", "metadata/foo.json"};
     }
 }
