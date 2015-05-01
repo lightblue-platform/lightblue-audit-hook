@@ -195,7 +195,8 @@ public class AuditHook implements CRUDHook {
                 // common bits: (note, includes starting { for first data element and _id field name and first paren for value)
                 // note that entity (name) is for audit, not the audited entity
                 ObjectNode jsonNode = new ObjectNode(JsonNodeFactory.instance);
-                jsonNode.put("entity", "audit");
+                jsonNode.put("entity", auditConfig.getEntityName());
+                jsonNode.put("entityVersion", auditConfig.getVersion());
                 ArrayNode data = jsonNode.putArray("data");
                 data.add(audit.toJSON());
 
