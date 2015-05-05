@@ -5,9 +5,15 @@
  */
 package com.redhat.lightblue.hook.audit;
 
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.config.DataSourcesConfiguration;
+import com.redhat.lightblue.config.LightblueFactory;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
 import com.redhat.lightblue.metadata.parser.Extensions;
@@ -17,13 +23,6 @@ import com.redhat.lightblue.mongo.config.MongoConfiguration;
 import com.redhat.lightblue.mongo.test.EmbeddedMongo;
 import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.util.test.FileUtil;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-
-import org.junit.After;
-
-import java.util.Objects;
 
 /**
  * Abstract hook test assuming use of mongo backend and metadata for test as
@@ -42,7 +41,18 @@ public abstract class AbstractHookTest {
     protected static AuditHookConfigurationParser hookParser;
     protected static JSONMetadataParser parser;
 
+    private static final LightblueFactory factory;
 
+    static {
+        // a striped down version of what is in lightblue-rest/config class RestConfiguration
+        DataSourcesConfiguration datasources = null;
+        try {
+            datasources = new DataSourcesConfiguration(JsonUtils.json(Thread.currentThread().getContextClassLoader().getResourceAsStream("datasources.json")));
+        } catch (Exception e) {
+            throw new RuntimeException("Cannot initialize datasources.", e);
+        }
+        factory = new LightblueFactory(datasources);
+    }
 
     @BeforeClass
     public static void beforeClass() throws Exception {
@@ -63,16 +73,16 @@ public abstract class AbstractHookTest {
     }
 
     @Before
-    public void setup()  {
+    public void setup() {
         // create metadata
         try {
             for (String resource : getMetadataResources()) {
                 String jsonString = null;
                 jsonString = FileUtil.readFile(resource);
                 EntityMetadata em = parser.parseEntityMetadata(JsonUtils.json(jsonString));
-                AuditHook.getFactory().getMetadata().createNewMetadata(em);
+                factory.getMetadata().createNewMetadata(em);
             }
-         } catch (Exception e) {
+        } catch (Exception e) {
             throw new IllegalStateException(e);
         }
     }
@@ -86,6 +96,12 @@ public abstract class AbstractHookTest {
     public static void teardownClass() throws Exception {
         parser = null;
         hookParser = null;
+    }
+
+    protected static AuditHook createAuditHook() {
+        AuditHook hook = new AuditHook();
+        hook.setLightblueFactory(factory);
+        return hook;
     }
 
     /**
