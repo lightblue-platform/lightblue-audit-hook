@@ -1,10 +1,16 @@
 package com.redhat.lightblue.hook.audit;
 
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.ClientIdentification;
+import com.redhat.lightblue.DataError;
 import com.redhat.lightblue.Response;
 import com.redhat.lightblue.config.LightblueFactory;
 import com.redhat.lightblue.config.LightblueFactoryAware;
@@ -19,14 +25,9 @@ import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Field;
 import com.redhat.lightblue.metadata.HookConfiguration;
 import com.redhat.lightblue.metadata.types.DateType;
-
-import java.util.List;
-
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonNodeCursor;
 import com.redhat.lightblue.util.Path;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Audit hook implementation that writes audit data to a lightblue entity.
@@ -42,7 +43,8 @@ public class AuditHook implements CRUDHook, LightblueFactoryAware {
 
     private LightblueFactory lightblueFactory;
 
-    public void setLightblueFactory(LightblueFactory lightblueFactory){
+    @Override
+    public void setLightblueFactory(LightblueFactory lightblueFactory) {
         this.lightblueFactory = lightblueFactory;
     }
 
@@ -59,15 +61,15 @@ public class AuditHook implements CRUDHook, LightblueFactoryAware {
         // find if each field changed
 
         //  for CRUDOperation.INSERT && CRUDOperation.FIND,  preCursor is null
-        if(processedDocument.getPreDoc() != null) {
+        if (processedDocument.getPreDoc() != null) {
             preCursor = processedDocument.getPreDoc().cursor();
         }
         // for  CRUDOperation.DELETE, postCursor is null
-        if(processedDocument.getPostDoc() != null) {
+        if (processedDocument.getPostDoc() != null) {
             postCursor = processedDocument.getPostDoc().cursor();
         }
 
-        if(preCursor != null) {
+        if (preCursor != null) {
             while (preCursor.next()) {
                 Path path = preCursor.getCurrentPath();
                 JsonNode node = preCursor.getCurrentNode();
@@ -76,7 +78,7 @@ public class AuditHook implements CRUDHook, LightblueFactoryAware {
                     // non-container node, check if it changed
                     String preValue = node.asText();
                     String postValue = null;
-                    if(processedDocument.getPostDoc() != null) {
+                    if (processedDocument.getPostDoc() != null) {
                         // if operation is delete, post value doesn't exist.
                         JsonNode postNode = processedDocument.getPostDoc().get(path);
                         postValue = processedDocument.getCRUDOperation() == CRUDOperation.DELETE || postNode == null ? null : postNode.asText();
@@ -96,7 +98,7 @@ public class AuditHook implements CRUDHook, LightblueFactoryAware {
             }
         }
 
-        if(postCursor != null) {
+        if (postCursor != null) {
             while (postCursor.next()) {
                 Path path = postCursor.getCurrentPath();
                 JsonNode node = postCursor.getCurrentNode();
@@ -105,7 +107,7 @@ public class AuditHook implements CRUDHook, LightblueFactoryAware {
                 if (!audit.getData().containsKey(path) && node.isValueNode()) {
 
                     String preValue = null;
-                    if(processedDocument.getPreDoc() != null) {
+                    if (processedDocument.getPreDoc() != null) {
                         // non-container node, check if it changed
                         JsonNode preNode = processedDocument.getPreDoc().get(path);
                         preValue = preNode == null ? null : preNode.asText();
@@ -146,8 +148,8 @@ public class AuditHook implements CRUDHook, LightblueFactoryAware {
         for (Field f : processedDocument.getEntityMetadata().getEntitySchema().getIdentityFields()) {
             Path p = f.getFullPath();
             JsonNode node = null;
-                    // pre doc?
-            if(processedDocument.getPreDoc() != null){
+            // pre doc?
+            if (processedDocument.getPreDoc() != null) {
                 node = processedDocument.getPreDoc().get(p);
             }
 
@@ -226,6 +228,12 @@ public class AuditHook implements CRUDHook, LightblueFactoryAware {
                     if (!r.getErrors().isEmpty()) {
                         // there are errors.  there is nowhere to return errors so just log them for now
                         for (Error e : r.getErrors()) {
+                            LOGGER.error(e.toString());
+                        }
+                    }
+                    else if (!r.getDataErrors().isEmpty()) {
+                        //TODO Better Handle Exception
+                        for (DataError e : r.getDataErrors()) {
                             LOGGER.error(e.toString());
                         }
                     }
