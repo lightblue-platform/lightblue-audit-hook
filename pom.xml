@@ -110,32 +110,7 @@
                 <artifactId>slf4j-simple</artifactId>
                 <version>1.7.7</version>
                 <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.netflix.servo</groupId>
-                <artifactId>servo-core</artifactId>
-                <version>0.8.0</version>
-            </dependency>
-            <dependency>
-                <groupId>com.netflix.servo</groupId>
-                <artifactId>servo-graphite</artifactId>
-                <version>0.8.0</version>
-            </dependency>
-            <dependency>
-                <groupId>com.netflix.hystrix</groupId>
-                <artifactId>hystrix-core</artifactId>
-                <version>1.4.0</version>
-            </dependency>
-            <dependency>
-                <groupId>com.netflix.hystrix</groupId>
-                <artifactId>hystrix-metrics-event-stream</artifactId>
-                <version>1.4.0</version>
-            </dependency>
-            <dependency>
-                <groupId>com.netflix.hystrix</groupId>
-                <artifactId>hystrix-servo-metrics-publisher</artifactId>
-                <version>1.4.0</version>
-            </dependency>
+            </dependency>         
         </dependencies>
     </dependencyManagement>
     <dependencies>
