@@ -37,32 +37,32 @@
             <dependency>
                 <groupId>com.redhat.lightblue</groupId>
                 <artifactId>lightblue-core-metadata</artifactId>
-                <version>1.6.0</version>
+                <version>${lightblue.core.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.redhat.lightblue</groupId>
                 <artifactId>lightblue-core-crud</artifactId>
-                <version>1.6.0</version>
+                <version>${lightblue.core.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.redhat.lightblue</groupId>
                 <artifactId>lightblue-core-config</artifactId>
-                <version>1.6.0</version>
+                <version>${lightblue.core.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.redhat.lightblue.mongo</groupId>
                 <artifactId>lightblue-mongo-config</artifactId>
-                <version>1.6.0</version>
+                <version>${lightblue.mongo.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.redhat.lightblue.mongo</groupId>
                 <artifactId>lightblue-mongo-metadata</artifactId>
-                <version>1.6.0</version>
+                <version>${lightblue.mongo.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.redhat.lightblue.mongo</groupId>
                 <artifactId>lightblue-mongo-test</artifactId>
-                <version>1.6.0</version>
+                <version>${lightblue.mongo.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -154,6 +154,9 @@
         <sonar.jdbc.password>sonar</sonar.jdbc.password>
         <sonar.host.url>http://127.0.0.1:8080</sonar.host.url>
         <sonar.projectName>lightblue-audit-hook</sonar.projectName>
+
+        <lightblue.core.version>1.7.0-SNAPSHOT</lightblue.core.version>
+        <lightblue.mongo.version>1.7.0-SNAPSHOT</lightblue.mongo.version>
     </properties>
     <build>
         <plugins>
