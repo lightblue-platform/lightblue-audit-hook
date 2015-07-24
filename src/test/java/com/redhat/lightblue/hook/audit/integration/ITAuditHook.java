@@ -3,6 +3,7 @@ package com.redhat.lightblue.hook.audit.integration;
 import static com.redhat.lightblue.test.Assert.assertNoDataErrors;
 import static com.redhat.lightblue.test.Assert.assertNoErrors;
 import static com.redhat.lightblue.util.JsonUtils.json;
+import static com.redhat.lightblue.util.test.AbstractJsonNodeTest.loadResource;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Iterator;
@@ -38,8 +39,8 @@ public class ITAuditHook extends AbstractMongoCRUDTestController {
     @Override
     protected JsonNode[] getMetadataJsonNodes() throws Exception {
         return new JsonNode[]{
-                json(loadResource("/metadata/audit.json", true)),
-                json(loadResource("/metadata/country_with_hooks.json", true))
+                json(loadResource("/metadata/audit.json")),
+                json(loadResource("/metadata/country_with_hooks.json"))
         };
     }
 
