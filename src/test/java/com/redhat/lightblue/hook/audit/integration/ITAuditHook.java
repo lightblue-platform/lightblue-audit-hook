@@ -6,7 +6,9 @@ import static com.redhat.lightblue.util.JsonUtils.json;
 import static com.redhat.lightblue.util.test.AbstractJsonNodeTest.loadResource;
 import static org.junit.Assert.assertEquals;
 
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -39,9 +41,19 @@ public class ITAuditHook extends AbstractMongoCRUDTestController {
     @Override
     protected JsonNode[] getMetadataJsonNodes() throws Exception {
         return new JsonNode[]{
-                json(loadResource("/metadata/audit.json")),
-                json(loadResource("/metadata/country_with_hooks.json"))
+                json(loadResource("./metadata/audit.json")),
+                json(loadResource("./metadata/country_with_hooks.json"))
         };
+    }
+
+    @Override
+    public Set<String> getHooksToRemove() {
+        return new HashSet<>();
+    }
+    
+    @Override
+    protected JsonNode getDatasourcesJson() throws Exception {
+        return json(loadResource("/datasources.json", AbstractMongoCRUDTestController.class), true);
     }
 
     @Test
