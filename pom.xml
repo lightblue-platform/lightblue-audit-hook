@@ -155,8 +155,8 @@
         <sonar.host.url>http://127.0.0.1:8080</sonar.host.url>
         <sonar.projectName>lightblue-audit-hook</sonar.projectName>
 
-        <lightblue.core.version>1.8.0-SNAPSHOT</lightblue.core.version>
-        <lightblue.mongo.version>1.8.0-SNAPSHOT</lightblue.mongo.version>
+        <lightblue.core.version>1.8.1</lightblue.core.version>
+        <lightblue.mongo.version>1.8.1</lightblue.mongo.version>
     </properties>
     <build>
         <plugins>
