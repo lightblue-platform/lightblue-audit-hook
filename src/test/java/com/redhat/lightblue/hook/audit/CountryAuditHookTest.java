@@ -99,7 +99,7 @@ public class CountryAuditHookTest extends AbstractHookTest {
         EntityMetadata em = parser.parseEntityMetadata(json(jsonSchemaString));
 
         // create hook configuration
-        AuditHookConfiguration config = new AuditHookConfiguration(em.getName(), em.getVersion().getValue());
+        AuditHookConfiguration config = new AuditHookConfiguration();
 
         // ------------------------------------------------------------
         // mock up document data
@@ -137,7 +137,7 @@ public class CountryAuditHookTest extends AbstractHookTest {
         EntityMetadata em = parser.parseEntityMetadata(json(jsonSchemaString));
 
         // create hook configuration
-        AuditHookConfiguration config = new AuditHookConfiguration(em.getName(), em.getVersion().getValue());
+        AuditHookConfiguration config = new AuditHookConfiguration();
 
         // ------------------------------------------------------------
         // mock up document data
@@ -179,7 +179,7 @@ public class CountryAuditHookTest extends AbstractHookTest {
         EntityMetadata em = parser.parseEntityMetadata(json(jsonSchemaString));
 
         // create hook configuration
-        AuditHookConfiguration config = new AuditHookConfiguration(em.getName(), em.getVersion().getValue());
+        AuditHookConfiguration config = new AuditHookConfiguration();
 
         // ------------------------------------------------------------
         // mock up document data
@@ -220,7 +220,7 @@ public class CountryAuditHookTest extends AbstractHookTest {
         EntityMetadata em = parser.parseEntityMetadata(json(jsonSchemaString));
 
         // create hook configuration
-        AuditHookConfiguration config = new AuditHookConfiguration(em.getName(), em.getVersion().getValue());
+        AuditHookConfiguration config = new AuditHookConfiguration();
 
         // ------------------------------------------------------------
         // mock up document data
@@ -269,7 +269,7 @@ public class CountryAuditHookTest extends AbstractHookTest {
         EntityMetadata em = parser.parseEntityMetadata(json(jsonSchemaString));
 
         // create hook configuration
-        AuditHookConfiguration config = new AuditHookConfiguration(em.getName(), em.getVersion().getValue());
+        AuditHookConfiguration config = new AuditHookConfiguration();
 
         // ------------------------------------------------------------
         // mock up document data
