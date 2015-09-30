@@ -180,8 +180,7 @@ public class AuditHook implements CRUDHook, LightblueFactoryAware {
         AuditHookConfiguration auditConfig = (AuditHookConfiguration) cfg;
 
         try {
-            Error.push(auditConfig.getEntityName());
-            Error.push(auditConfig.getVersion());
+            Error.push(getName());
 
             // for each processed document
             for (HookDoc hd : processedDocuments) {

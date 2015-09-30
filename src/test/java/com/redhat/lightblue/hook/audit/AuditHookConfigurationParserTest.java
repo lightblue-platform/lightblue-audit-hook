@@ -10,8 +10,6 @@ import org.junit.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.redhat.lightblue.metadata.EntityInfo;
-import com.redhat.lightblue.metadata.MetadataConstants;
-import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.test.FileUtil;
 
 public class AuditHookConfigurationParserTest extends AbstractHookTest {
@@ -19,40 +17,6 @@ public class AuditHookConfigurationParserTest extends AbstractHookTest {
     @Test
     public void getName() {
         Assert.assertEquals(AuditHook.HOOK_NAME, hookParser.getName());
-    }
-
-    @Test
-    public void testMissingVersion() throws IOException, URISyntaxException {
-        String jsonString = FileUtil.readFile(getClass().getSimpleName() + "-missing-version.json");
-
-        Assert.assertNotNull(jsonString);
-
-        JsonNode node = json(jsonString);
-
-        try {
-            EntityInfo entityInfo = parser.parseEntityInfo(node);
-            Assert.fail("Expected Error to be thrown");
-        } catch (Error e) {
-            Assert.assertEquals(MetadataConstants.ERR_PARSE_MISSING_ELEMENT, e.getErrorCode());
-            Assert.assertEquals(AuditHookConfigurationParser.PROPERTY_VERSION, e.getMsg());
-        }
-    }
-
-    @Test
-    public void testMissingEntityName() throws IOException, URISyntaxException {
-        String jsonString = FileUtil.readFile(getClass().getSimpleName() + "-missing-entityName.json");
-
-        Assert.assertNotNull(jsonString);
-
-        JsonNode node = json(jsonString);
-
-        try {
-            EntityInfo entityInfo = parser.parseEntityInfo(node);
-            Assert.fail("Expected Error to be thrown");
-        } catch (Error e) {
-            Assert.assertEquals(MetadataConstants.ERR_PARSE_MISSING_ELEMENT, e.getErrorCode());
-            Assert.assertEquals(AuditHookConfigurationParser.PROPERTY_ENTITY_NAME, e.getMsg());
-        }
     }
 
     @Test
@@ -84,10 +48,6 @@ public class AuditHookConfigurationParserTest extends AbstractHookTest {
         Assert.assertNotNull(entityInfo);
         Assert.assertFalse(entityInfo.getHooks().isEmpty());
         Assert.assertEquals(AuditHook.HOOK_NAME, entityInfo.getHooks().getHooks().get(0).getName());
-
-        // verify configuration
-        Assert.assertEquals("audit", ((AuditHookConfiguration) entityInfo.getHooks().getHooks().get(0).getConfiguration()).getEntityName());
-        Assert.assertEquals("1.0.0", ((AuditHookConfiguration) entityInfo.getHooks().getHooks().get(0).getConfiguration()).getVersion());
     }
 
     @Test
@@ -98,8 +58,7 @@ public class AuditHookConfigurationParserTest extends AbstractHookTest {
 
         AuditHookConfiguration config = (AuditHookConfiguration) p.parse("audit", parser, json(jsonString));
 
-        Assert.assertEquals("audit", config.getEntityName());
-        Assert.assertEquals("1.0.0", config.getVersion());
+        Assert.assertNotNull(config);
     }
 
     @Test
@@ -114,8 +73,7 @@ public class AuditHookConfigurationParserTest extends AbstractHookTest {
 
         p.convert(parser, node, config);
 
-        Assert.assertEquals("audit", node.get("entityName").asText());
-        Assert.assertEquals("1.0.0", node.get("version").asText());
+        Assert.assertFalse(node.elements().hasNext());
     }
 
     @Override
