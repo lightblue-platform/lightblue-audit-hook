@@ -15,11 +15,11 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.config.DataSourcesConfiguration;
 import com.redhat.lightblue.config.LightblueFactory;
 import com.redhat.lightblue.metadata.EntityMetadata;
-import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.mongo.config.MongoConfiguration;
+import com.redhat.lightblue.mongo.metadata.MongoDataStoreParser;
 import com.redhat.lightblue.mongo.test.EmbeddedMongo;
 import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.util.test.FileUtil;
@@ -77,8 +77,7 @@ public abstract class AbstractHookTest {
         // create metadata
         try {
             for (String resource : getMetadataResources()) {
-                String jsonString = null;
-                jsonString = FileUtil.readFile(resource);
+                String jsonString = FileUtil.readFile(resource);
                 EntityMetadata em = parser.parseEntityMetadata(JsonUtils.json(jsonString));
                 factory.getMetadata().createNewMetadata(em);
             }
