@@ -35,6 +35,7 @@ import com.redhat.lightblue.util.Path;
  * @author nmalik
  */
 public class AuditHook implements CRUDHook, LightblueFactoryAware {
+
     private final Logger LOGGER = LoggerFactory.getLogger(AuditHook.class);
 
     public static final String HOOK_NAME = "auditHook";
@@ -42,6 +43,22 @@ public class AuditHook implements CRUDHook, LightblueFactoryAware {
     public static final String ERR_MISSING_ID = "audit-hook:MissingID";
 
     private LightblueFactory lightblueFactory;
+
+    private static class AuditHookClientIdentification extends ClientIdentification {
+
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public boolean isUserInRole(String role) {
+            // audit hook is only doing insert and must always be allowed to do insert.
+            return true;
+        }
+
+        @Override
+        public String getPrincipal() {
+            return HOOK_NAME;
+        }
+    }
 
     @Override
     public void setLightblueFactory(LightblueFactory lightblueFactory) {
@@ -59,7 +76,6 @@ public class AuditHook implements CRUDHook, LightblueFactoryAware {
         JsonNodeCursor postCursor = null;
 
         // find if each field changed
-
         //  for CRUDOperation.INSERT && CRUDOperation.FIND,  preCursor is null
         if (processedDocument.getPreDoc() != null) {
             preCursor = processedDocument.getPreDoc().cursor();
@@ -174,11 +190,6 @@ public class AuditHook implements CRUDHook, LightblueFactoryAware {
 
     @Override
     public void processHook(EntityMetadata md, HookConfiguration cfg, List<HookDoc> processedDocuments) {
-        if (!(cfg instanceof AuditHookConfiguration)) {
-            // fail
-        }
-        AuditHookConfiguration auditConfig = (AuditHookConfiguration) cfg;
-
         try {
             Error.push(getName());
 
@@ -210,18 +221,7 @@ public class AuditHook implements CRUDHook, LightblueFactoryAware {
                     // create insert request
                     InsertionRequest ireq = InsertionRequest.fromJson(jsonNode);
                     // add client identifier bits
-                    ireq.setClientId(new ClientIdentification() {
-                        @Override
-                        public boolean isUserInRole(String role) {
-                            // audit hook is only doing insert and must always be allowed to do insert.
-                            return true;
-                        }
-
-                        @Override
-                        public String getPrincipal() {
-                            return HOOK_NAME;
-                        }
-                    });
+                    ireq.setClientId(new AuditHookClientIdentification());
                     // issue insert against crud mediator
                     Response r = lightblueFactory.getMediator().insert(ireq);
                     if (!r.getErrors().isEmpty()) {
@@ -229,8 +229,7 @@ public class AuditHook implements CRUDHook, LightblueFactoryAware {
                         for (Error e : r.getErrors()) {
                             LOGGER.error(e.toString());
                         }
-                    }
-                    else if (!r.getDataErrors().isEmpty()) {
+                    } else if (!r.getDataErrors().isEmpty()) {
                         //TODO Better Handle Exception
                         for (DataError e : r.getDataErrors()) {
                             LOGGER.error(e.toString());
