@@ -310,12 +310,6 @@
                                         <location>target/${project.artifactId}-${project.version}.${project.packaging}</location>
                                     </source>
                                 </sources>
-                                <dependency>
-                                  <includes>
-                                    <include>com.redhat.lightblue.ldap:*</include>
-                                    <include>com.unboundid:unboundid-ldapsdk</include>
-                                  </includes>
-                                </dependency>
                             </mapping>
                         </mappings>
                     </configuration>
