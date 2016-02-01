@@ -310,6 +310,11 @@
                                         <location>target/${project.artifactId}-${project.version}.${project.packaging}</location>
                                     </source>
                                 </sources>
+                              <dependency>
+                                <includes>
+                                  <include>${project.groupId}:*</include>
+                                </includes>
+                              </dependency>
                             </mapping>
                         </mappings>
                     </configuration>
