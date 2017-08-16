@@ -28,6 +28,9 @@ import com.redhat.lightblue.metadata.types.DateType;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonNodeCursor;
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.metrics.DropwizardRequestMetrics;
+import com.redhat.lightblue.util.metrics.MetricRegistryFactory;
+import com.redhat.lightblue.util.metrics.RequestMetrics;
 
 /**
  * Audit hook implementation that writes audit data to a lightblue entity.
@@ -44,6 +47,14 @@ public class AuditHook implements CRUDHook, LightblueFactoryAware {
 
     private LightblueFactory lightblueFactory;
 
+    /**
+     * Thread-safe, shared static instance for all requests. Registry is also static, so does not
+     * make much difference to inject. If you wanted to inject, you could do so rather easily using
+     * CDI injection.
+     */
+    private static final RequestMetrics metrics =
+            new DropwizardRequestMetrics(MetricRegistryFactory.getMetricRegistry());
+    
     private static class AuditHookClientIdentification extends ClientIdentification {
 
         private static final long serialVersionUID = 1L;
@@ -223,7 +234,7 @@ public class AuditHook implements CRUDHook, LightblueFactoryAware {
                     // add client identifier bits
                     ireq.setClientId(new AuditHookClientIdentification());
                     // issue insert against crud mediator
-                    Response r = lightblueFactory.getMediator().insert(ireq);
+                    Response r = lightblueFactory.getMediator().insert(ireq, metrics);
                     if (!r.getErrors().isEmpty()) {
                         // there are errors.  there is nowhere to return errors so just log them for now
                         for (Error e : r.getErrors()) {

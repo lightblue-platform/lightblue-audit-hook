@@ -22,6 +22,7 @@ import com.redhat.lightblue.crud.FindRequest;
 import com.redhat.lightblue.crud.InsertionRequest;
 import com.redhat.lightblue.crud.UpdateRequest;
 import com.redhat.lightblue.mongo.test.AbstractMongoCRUDTestController;
+import com.redhat.lightblue.util.metrics.NoopRequestMetrics;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ITAuditHook extends AbstractMongoCRUDTestController {
@@ -64,7 +65,7 @@ public class ITAuditHook extends AbstractMongoCRUDTestController {
                         + "{\"name\":\"United States\",\"iso2Code\":\"123\",\"iso3Code\":\"456\"},"
                         + "{\"name\":\"Mexico\",\"iso2Code\":\"qaz\",\"iso3Code\":\"zaq\"},"
                         + "{\"name\":\"Canada\",\"iso2Code\":\"abc\",\"iso3Code\":\"def\"}"
-                        + "]}"));
+                        + "]}"), new NoopRequestMetrics());
         assertNoErrors(insertResponse);
         assertNoDataErrors(insertResponse);
         assertEquals(3, insertResponse.getModifiedCount());
@@ -73,7 +74,7 @@ public class ITAuditHook extends AbstractMongoCRUDTestController {
                 FindRequest.class,
                 "{\"entity\":\"audit\",\"entityVersion\":\"" + AUDIT_VERSION + "\","
                         + "\"query\":{\"field\":\"objectType\",\"op\":\"$eq\",\"rvalue\":\"audit\"},"
-                        + "\"projection\": [{\"field\":\"*\",\"include\":true,\"recursive\":true}]}"));
+                        + "\"projection\": [{\"field\":\"*\",\"include\":true,\"recursive\":true}]}"), new NoopRequestMetrics());
         assertNoErrors(findResponse);
         assertNoDataErrors(findResponse);
         assertEquals(3, findResponse.getMatchCount());
@@ -94,7 +95,7 @@ public class ITAuditHook extends AbstractMongoCRUDTestController {
                         + "\"query\":{\"field\":\"name\",\"op\":\"$in\",\"values\":[\"United States\",\"Canada\"]},"
                         + "\"update\":["
                         + "{\"$set\":{\"optionalField\":\"modified\"}}"
-                        + "]}"));
+                        + "]}"), new NoopRequestMetrics());
         assertNoErrors(updateResponse);
         assertNoDataErrors(updateResponse);
         assertEquals(2, updateResponse.getModifiedCount());
@@ -103,7 +104,7 @@ public class ITAuditHook extends AbstractMongoCRUDTestController {
                 FindRequest.class,
                 "{\"entity\":\"audit\",\"entityVersion\":\"" + AUDIT_VERSION + "\","
                         + "\"query\":{\"field\":\"CRUDOperation\",\"op\":\"$eq\",\"rvalue\":\"UPDATE\"},"
-                        + "\"projection\": [{\"field\":\"*\",\"include\":true,\"recursive\":true}]}"));
+                        + "\"projection\": [{\"field\":\"*\",\"include\":true,\"recursive\":true}]}"), new NoopRequestMetrics());
         assertNoErrors(findResponse);
         assertNoDataErrors(findResponse);
         assertEquals(2, findResponse.getMatchCount());
@@ -115,7 +116,7 @@ public class ITAuditHook extends AbstractMongoCRUDTestController {
                 DeleteRequest.class,
                 "{\"entity\":\"country\",\"entityVersion\":\"" + COUNTRY_VERSION + "\","
                         + "\"projection\": [{\"field\":\"*\",\"include\":true,\"recursive\":true}],"
-                        + "\"query\":{\"field\":\"name\",\"op\":\"$in\",\"values\":[\"United States\",\"Canada\"]}}"));
+                        + "\"query\":{\"field\":\"name\",\"op\":\"$in\",\"values\":[\"United States\",\"Canada\"]}}"), new NoopRequestMetrics());
         assertNoErrors(deleteResponse);
         assertNoDataErrors(deleteResponse);
         assertEquals(2, deleteResponse.getModifiedCount());
@@ -124,7 +125,7 @@ public class ITAuditHook extends AbstractMongoCRUDTestController {
                 FindRequest.class,
                 "{\"entity\":\"audit\",\"entityVersion\":\"" + AUDIT_VERSION + "\","
                         + "\"query\":{\"field\":\"CRUDOperation\",\"op\":\"$eq\",\"rvalue\":\"DELETE\"},"
-                        + "\"projection\": [{\"field\":\"*\",\"include\":true,\"recursive\":true}]}"));
+                        + "\"projection\": [{\"field\":\"*\",\"include\":true,\"recursive\":true}]}"), new NoopRequestMetrics());
         assertNoErrors(findResponse);
         assertNoDataErrors(findResponse);
         assertEquals(2, findResponse.getMatchCount());
