@@ -154,7 +154,7 @@
         <rpm.install.basedir>/usr/share/java/lightblue/${project.artifactId}</rpm.install.basedir>
 
         <lightblue.core.version>2.12.0-SNAPSHOT</lightblue.core.version>
-        <lightblue.mongo.version>1.28.0</lightblue.mongo.version>
+        <lightblue.mongo.version>1.29.0-SNAPSHOT</lightblue.mongo.version>
     </properties>
     <build>
         <pluginManagement>
