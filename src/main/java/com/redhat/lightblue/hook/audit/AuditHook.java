@@ -47,13 +47,8 @@ public class AuditHook implements CRUDHook, LightblueFactoryAware {
 
     private LightblueFactory lightblueFactory;
 
-    /**
-     * Thread-safe, shared static instance for all requests. Registry is also static, so does not
-     * make much difference to inject. If you wanted to inject, you could do so rather easily using
-     * CDI injection.
-     */
     private static final RequestMetrics metrics =
-            new DropwizardRequestMetrics(MetricRegistryFactory.getMetricRegistry());
+            new DropwizardRequestMetrics(MetricRegistryFactory.getJmxMetricRegistry());
     
     private static class AuditHookClientIdentification extends ClientIdentification {
 
@@ -233,8 +228,10 @@ public class AuditHook implements CRUDHook, LightblueFactoryAware {
                     InsertionRequest ireq = InsertionRequest.fromJson(jsonNode);
                     // add client identifier bits
                     ireq.setClientId(new AuditHookClientIdentification());
+                    // initialize metrics
+                    RequestMetrics.Context metricCtx = metrics.startEntityRequest("insert", ireq.getEntityVersion().getEntity(), ireq.getEntityVersion().getVersion());
                     // issue insert against crud mediator
-                    Response r = lightblueFactory.getMediator(metrics).insert(ireq);
+                    Response r = lightblueFactory.getMediator().insert(ireq, metricCtx);
                     if (!r.getErrors().isEmpty()) {
                         // there are errors.  there is nowhere to return errors so just log them for now
                         for (Error e : r.getErrors()) {
