@@ -228,10 +228,8 @@ public class AuditHook implements CRUDHook, LightblueFactoryAware {
                     InsertionRequest ireq = InsertionRequest.fromJson(jsonNode);
                     // add client identifier bits
                     ireq.setClientId(new AuditHookClientIdentification());
-                    // initialize metrics
-                    RequestMetrics.Context metricCtx = metrics.startEntityRequest("insert", ireq.getEntityVersion().getEntity(), ireq.getEntityVersion().getVersion());
                     // issue insert against crud mediator
-                    Response r = lightblueFactory.getMediator().insert(ireq, metricCtx);
+                    Response r = lightblueFactory.getMediator().insert(ireq);
                     if (!r.getErrors().isEmpty()) {
                         // there are errors.  there is nowhere to return errors so just log them for now
                         for (Error e : r.getErrors()) {
