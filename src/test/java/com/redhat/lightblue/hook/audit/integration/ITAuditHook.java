@@ -22,6 +22,8 @@ import com.redhat.lightblue.crud.FindRequest;
 import com.redhat.lightblue.crud.InsertionRequest;
 import com.redhat.lightblue.crud.UpdateRequest;
 import com.redhat.lightblue.mongo.test.AbstractMongoCRUDTestController;
+import com.redhat.lightblue.util.metrics.NoopRequestMetrics;
+import com.redhat.lightblue.util.metrics.RequestMetrics;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ITAuditHook extends AbstractMongoCRUDTestController {
