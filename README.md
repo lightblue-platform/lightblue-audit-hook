@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/lightblue-platform/lightblue-audit-hook.svg?branch=master)](https://travis-ci.org/lightblue-platform/lightblue-audit-hook) [![Coverage Status](https://coveralls.io/repos/lightblue-platform/lightblue-audit-hook/badge.png?branch=master)](https://coveralls.io/r/lightblue-platform/lightblue-audit-hook?branch=master)
+[![Coverage Status](https://coveralls.io/repos/lightblue-platform/lightblue-audit-hook/badge.png?branch=master)](https://coveralls.io/r/lightblue-platform/lightblue-audit-hook?branch=master)
 
 # Books!
 
